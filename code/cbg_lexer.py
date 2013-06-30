@@ -6,29 +6,32 @@
 
 from ply import lex
 
-# support_reserved = {}
-
-# rebel_reserved = {}
-
-# reserved = list(support_reserved.values()) + list(rebel_reserved.values())
+# reserved = {}
 
 tokens = ['NEW',
           'ASSIGN',
           'ID',
           'PRINT',
-          'INTEGER',
+          'COMPARISON',
           'FLOAT',
-          'STRING',
-          'COMPARISON'] # + reserved
+          'INTEGER',
+          'STRING'] # + list(reserved.values())
 
 literals = (',', '+', '-', '*', '/', '(', ')', '[', ']')
 
-states = [('full', 'inclusive'),
-          ('support', 'inclusive'),
-          ('rebel', 'inclusive')]
-
 #-------------------------------------------------------------------------------
-# common tokens
+# tokens
+
+t_NEW = r'\+[ ]*@'
+t_ASSIGN = r'<@'
+t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
+t_PRINT = r'\\@/'
+t_COMPARISON = r'\.@|=@|@=|@\.|@'
+
+def t_FLOAT(t):
+    r'[0-9]+\.[0-9]+'
+    t.value = float(t.value)
+    return t
 
 def t_INTEGER(t):
     r'[0-9]+'
@@ -36,7 +39,7 @@ def t_INTEGER(t):
     return t
 
 def t_STRING(t):
-    r"'.*'"
+    r"'.*?'"
     t.value = t.value[1:-1]
     return t
 
@@ -52,36 +55,4 @@ def t_error(t):
     t.lexer.skip(1)
     return t
 
-#-------------------------------------------------------------------------------
-# other tokens
-
-t_full_PRINT = r'\\@/'
-t_support_PRINT = r'plant'
-
-t_full_NEW = r'\+[ ]*@'
-t_support_NEW = r'new[ ]+cabbage'
-t_rebel_NEW = r'var'
-
-t_full_COMPARISON = r'\.@|=@|@=|@\.|@'
-t_support_rebel_COMPARISON = r'<=|>=|<|=|>'
-
-t_support_full_ASSIGN = r'<@'
-t_rebel_ASSIGN = r'<-'
-
-t_full_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
-t_support_ID = r'(cabbage|cbg)[a-zA-Z0-9_]+'
-
-def t_rebel_ID(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    # t.type = rebel_reserved.get(t.value, 'ID')
-    if t.value == 'print':
-        t.type = 'PRINT'
-    return t
-
-def t_support_full_FLOAT(t):
-    r'[0-9]+\.[0-9]+'
-    t.value = float(t.value)
-    return t
-
 lexer = lex.lex()
-lexer.begin('full')

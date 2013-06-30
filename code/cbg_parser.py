@@ -28,7 +28,7 @@ def p_new(p):
 def p_print(p):
     '''print_stmt : PRINT
                   | PRINT expression'''
-    p[0] = Print(p[2] if len(p)==3 else None)
+    p[0] = Print(p[2] if len(p)==3 else String(''))
 
 def p_assign(p):
     'assign_stmt : ID ASSIGN expression'

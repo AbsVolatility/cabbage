@@ -12,8 +12,6 @@ class New(Node):
 class Print(Node):
     type = 'print'
     def __init__(self, value):
-        if value is None:
-            value = String('')
         self.value = value
     def __repr__(self):
         return 'Print({!r})'.format(self.value)
