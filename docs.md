@@ -44,8 +44,8 @@ These operators can currently only be used with numbers.
 
 These operators can also currently only be used with numbers.
 
-    # a < b, a <= b, a == b, a >= b, a > b
-    a .@ b, a =@ b, a @ b, a @= b, a @. b
+    # a < b, a <= b, a == b, a >= b, a > b, a != b
+    a .@ b, a =@ b, a @ b, a @= b, a @. b, a !@ b
 
 ## Functions
 

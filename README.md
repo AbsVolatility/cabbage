@@ -15,7 +15,7 @@ As stated above, the language has only begun to spring from the ground, and is f
 
 ## Alright, so how do I use it?
 
-First, make sure you have Python 3.x installed, along with PLY (use the link above). Download the files, run the "cabbage.py" program, and input `interpreter()` into the Python shell.
+First, make sure you have Python (2 or 3) installed, along with PLY (use the link above). Download the files and run the "interpreter.py" program. At the beginning of each session it will ask whether to enter 'debug' mode.
 
 To run a complete program, run the "cabbage.py" program, but instead input `run(<filename>)`, replacing `<filename>` with the name of the file you want to run.
 

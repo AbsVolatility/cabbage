@@ -1,8 +1,10 @@
 #-------------------------------------------------------------------------------
-# Master lexer for the Cabbage language
+# Lexer for the Cabbage language
 #
 # Written with PLY
 #-------------------------------------------------------------------------------
+
+from __future__ import print_function
 
 from ply import lex
 
@@ -19,14 +21,11 @@ tokens = ['NEW',
 
 literals = (',', '+', '-', '*', '/', '(', ')', '[', ']')
 
-#-------------------------------------------------------------------------------
-# tokens
-
 t_NEW = r'\+[ ]*@'
 t_ASSIGN = r'<@'
 t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PRINT = r'\\@/'
-t_COMPARISON = r'\.@|=@|@=|@\.|@'
+t_COMPARISON = r'\.@|=@|@=|@\.|!@|@'
 
 def t_FLOAT(t):
     r'[0-9]+\.[0-9]+'

@@ -41,42 +41,20 @@ class Expression(Node):
 class BinaryOp(Node):
     type = 'binary_op'
     def __init__(self, op, arg1, arg2):
-        if op == '.@':
-            op = '<'
-        elif op == '=@':
-            op = '<='
-        elif op in ('=', '@'):
-            op = '=='
-        elif op == '@=':
-            op = '>='
-        elif op == '@.':
-            op = '>'
-        self.op = op
+        self.op = {'+': 'add',
+                   '-': 'sub',
+                   '*': 'mul',
+                   '/': 'div',
+                   '.@': 'lt',
+                   '=@': 'le',
+                   '@': 'eq',
+                   '!@': 'ne',
+                   '@=': 'ge',
+                   '@.': 'gt'}.get(op, op)
         self.arg1 = arg1
         self.arg2 = arg2
     def __repr__(self):
         return '({!r} {} {!r})'.format(self.arg1, self.op, self.arg2)
-
-class Number(Node):
-    type = 'number'
-    def __init__(self, value):
-        self.value = value
-    def __repr__(self):
-        return str(self.value)
-
-class String(Node):
-    type = 'string'
-    def __init__(self, value):
-        self.value = value
-    def __repr__(self):
-        return repr(self.value)
-
-class List(Node):
-    type = 'list'
-    def __init__(self, value):
-        self.value = value
-    def __repr__(self):
-        return str(self.value)
 
 class Function(Node):
     type = 'function'
