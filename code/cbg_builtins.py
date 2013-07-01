@@ -24,4 +24,3 @@ def base(value, base, alphabet=base_chars):
         if neg:
             result.append('-')
         return ''.join(result[::-1])
-        
