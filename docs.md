@@ -35,17 +35,28 @@ Variables need to be declared before they can be used. If a variable has already
 
 ### Arithmetic
 
-These operators can currently only be used with numbers.
+    # a + b, a - b, a * b, a / b, a ** b
+    a + b, a - b, a * b, a / b, a ^ b
 
-    ## a + b, a - b, a * b, a / b
-    a + b, a - b, a * b, a / b
+The `+` and `*` operators can also be used with strings and list. A string plus another string concatenates the two and returns the result. A string multiplied by a integer repeats the string the given number of times and concatenates the result. The same applies with lists.
+
+### Bitwise
+
+    # a & b, a | b, a ^ b, ~a
+    a .& b, a .| b, a .^ b, ~a
 
 ### Comparisons
 
-These operators can also currently only be used with numbers.
-
     # a < b, a <= b, a == b, a >= b, a > b, a != b
-    a .@ b, a =@ b, a @ b, a @= b, a @. b, a !@ b
+    a < b, a <= b, a = b, a >= b, a > b, a != b
+
+The `<`, `<=`, `>=` and `>` operators can currently only be used with numbers.
+
+### Range
+
+The range operator can take two integers and return a list of all integers between the two values, including those values. The syntax is:
+
+    a .. b
 
 ## Functions
 

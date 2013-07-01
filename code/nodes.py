@@ -38,6 +38,17 @@ class Expression(Node):
     def __repr__(self):
         return repr(self.value)
 
+class UnaryOp(Node):
+    type = 'unary_op'
+    def __init__(self, op, arg):
+        self.op = {'+': 'uplus',
+                   '-': 'uminus',
+                   '~': 'bwnot',
+                   '!': 'blnot'}.get(op, op)
+        self.arg = arg
+    def __repr__(self):
+        return '({} {!r})'.format(self.op, self.arg)
+
 class BinaryOp(Node):
     type = 'binary_op'
     def __init__(self, op, arg1, arg2):
@@ -45,12 +56,20 @@ class BinaryOp(Node):
                    '-': 'sub',
                    '*': 'mul',
                    '/': 'div',
-                   '.@': 'lt',
-                   '=@': 'le',
-                   '@': 'eq',
-                   '!@': 'ne',
-                   '@=': 'ge',
-                   '@.': 'gt'}.get(op, op)
+                   '^': 'pow_',
+                   '<': 'lt',
+                   '<=': 'le',
+                   '=': 'eq',
+                   '!=': 'ne',
+                   '>=': 'ge',
+                   '>': 'gt',
+                   '.&': 'bwand',
+                   '.|': 'bwor',
+                   '.^': 'bwxor',
+                   '~': 'bwnot',
+                   '&': 'bland',
+                   '|': 'blor',
+                   '..': 'rnge'}.get(op, op)
         self.arg1 = arg1
         self.arg2 = arg2
     def __repr__(self):

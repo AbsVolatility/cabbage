@@ -43,6 +43,8 @@ def gen(node):
         return ''
     elif node_type == 'binary_op':
         return eval('{}({!r}, {!r})'.format(node.op, gen(node.arg1), gen(node.arg2)), globals())
+    elif node_type == 'unary_op':
+        return eval('{}({!r})'.format(node.op, gen(node.arg)), globals())
     elif node_type == 'function':
         return '{}(*{})'.format(node.name, gen(node.param_list))
     else:  # a literal value

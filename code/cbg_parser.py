@@ -13,8 +13,13 @@ from nodes import *
 from cbg_types import *
 
 precedence = [('nonassoc', 'COMPARISON'),
+              ('left', 'BOOLEAN'),
+              ('left', 'BITWISE'),
               ('left', '+', '-'),
-              ('left', '*', '/')]
+              ('nonassoc', 'RANGE'),
+              ('left', '*', '/'),
+              ('right', '^'),
+              ('right', 'UNARY')]
 
 def p_stmt(p):
     '''stmt : new_stmt
@@ -51,8 +56,16 @@ def p_expression_bin_op(p):
                   | expression '-' expression
                   | expression '*' expression
                   | expression '/' expression
-                  | expression COMPARISON expression'''
+                  | expression '^' expression
+                  | expression COMPARISON expression
+                  | expression BITWISE expression
+                  | expression BOOLEAN expression
+                  | expression RANGE expression'''
     p[0] = BinaryOp(p[2], p[1], p[3])
+
+def p_expression_unary(p):
+    'expression : UNARY expression'
+    p[0] = UnaryOp(p[1], p[2])
 
 def p_expression_parens(p):
     "expression : '(' expression ')'"

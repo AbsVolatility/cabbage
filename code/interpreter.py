@@ -6,7 +6,7 @@ if sys.version_info < (3, 0):
 
 from cabbage import *
 
-debug = input('Debug mode? (y/n)').lower().startswith('y')
+debug = input('Debug mode? (y/n)> ').lower().startswith('y')
 
 while True:
     s = input('@> ')

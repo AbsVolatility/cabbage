@@ -41,4 +41,4 @@ class cbgList:
     def __repr__(self):
         return 'cbgList({!r})'.format(self.value)
     def __str__(self):
-        return str(self.value)
+        return str([i.value for i in self.value])
