@@ -4,8 +4,6 @@ class cbgInteger:
         self.value = value
     def __repr__(self):
         return 'cbgInteger({!r})'.format(self.value)
-    def __str__(self):
-        return str(self.value)
 
 class cbgFloat:
     type = 'float'
@@ -13,8 +11,6 @@ class cbgFloat:
         self.value = value
     def __repr__(self):
         return 'cbgFloat({!r})'.format(self.value)
-    def __str__(self):
-        return str(self.value)
 
 class cbgBool:
     type = 'bool'
@@ -22,8 +18,6 @@ class cbgBool:
         self.value = value
     def __repr__(self):
         return 'cbgBool({!r})'.format(self.value)
-    def __str__(self):
-        return str(self.value)
 
 class cbgString:
     type = 'string'
@@ -31,8 +25,6 @@ class cbgString:
         self.value = value
     def __repr__(self):
         return 'cbgString({!r})'.format(self.value)
-    def __str__(self):
-        return repr(self.value)
 
 class cbgList:
     type = 'list'
@@ -40,8 +32,6 @@ class cbgList:
         self.value = value
     def __repr__(self):
         return 'cbgList({!r})'.format(self.value)
-    def __str__(self):
-        return str([i.value for i in self.value])
 
 class cbgNone:
     type = 'none'

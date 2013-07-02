@@ -1,6 +1,12 @@
 import string
 base_chars = string.digits + string.ascii_lowercase
 
+from cbg_operators import *
+
+import sys
+if sys.version_info < (3, 0):
+    input = raw_input
+
 def base(value, base, alphabet=base_chars):
     if not isinstance(value, (str, int)) or not isinstance(alphabet, str):
         raise TypeError
@@ -24,3 +30,6 @@ def base(value, base, alphabet=base_chars):
         if neg:
             result.append('-')
         return ''.join(result[::-1])
+
+def input_(prompt=''):
+    return cbgString(input(prompt))

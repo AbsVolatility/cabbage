@@ -27,5 +27,5 @@ while True:
     code = '\n'.join(['\n'.join(i) if isinstance(i, list) else i for i in code])
     if debug:
         print('code:\n' + code)
-    print('\n---\n')
+        print('\n---\n')
     exec(str(code), namespace)

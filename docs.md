@@ -80,7 +80,17 @@ There are currently two builtin functions in Cabbage - `base`, and `input`
 
 ## Loops and Conditionals
 
-There are currently no looping contructs available in Cabbage
+### For
+
+The `for` loop is written as such:
+
+    @ | <var> | { <code> };
+
+### While
+
+The `while` loop is written as such:
+
+    @ <cond> { <code> };
 
 ### If/Else
 

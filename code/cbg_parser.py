@@ -27,9 +27,8 @@ def p_s(p):
 
 def p_stmt_list(p):
     '''stmt_list : empty
-                 | stmt_
                  | stmt_ stmt_list'''
-    p[0] = ([p[1]] + p[2]) if len(p)==3 else ([p[1]] if p[1] else [])
+    p[0] = ([p[1]] + p[2]) if len(p)==3 else []
 
 def p_stmt_(p):
     "stmt_ : stmt ';'"
@@ -39,9 +38,10 @@ def p_stmt(p):
     '''stmt : new_stmt
             | print_stmt
             | assign_stmt
-            | func_call
             | expression_stmt
-            | if_stmt'''
+            | if_stmt
+            | for_loop
+            | while_loop'''
     p[0] = p[1]
 
 def p_new(p):
@@ -58,18 +58,26 @@ def p_assign(p):
     'assign_stmt : ID ASSIGN expression'
     p[0] = Assign(p[1], p[3])
 
-def p_func_call(p):
-    "func_call : ID '(' expression_list ')'"
-    p[0] = Function(p[1], cbgList(p[3]))
-
 def p_if_stmt(p):
     """if_stmt : ':' expression '{' stmt_list '}'
                | ':' expression '{' stmt_list '}' '{' stmt_list '}'"""
     p[0] = If(p[2], Block(p[4]), Block(p[7]) if len(p)==9 else None)
 
+def p_for_loop(p):
+    "for_loop : '@' LOOPVAR expression '{' stmt_list '}'"
+    p[0] = For(p[2], p[3], Block(p[5]))
+
+def p_while_loop(p):
+    "while_loop : '@' expression '{' stmt_list '}'"
+    p[0] = While(p[2], Block(p[4]))
+
 def p_expression_stmt(p):
     'expression_stmt : expression'
     p[0] = Expression(p[1])
+
+def p_func_call(p):
+    "expression : ID '(' expression_list ')'"
+    p[0] = Function(p[1], cbgList(p[3]))
 
 def p_expression_bin_op(p):
     '''expression : expression '+' expression
@@ -84,7 +92,9 @@ def p_expression_bin_op(p):
     p[0] = BinaryOp(p[2], p[1], p[3])
 
 def p_expression_unary(p):
-    'expression : UNARY expression'
+    '''expression : UNARY expression
+                  | '+' expression
+                  | '-' expression'''
     p[0] = UnaryOp(p[1], p[2])
 
 def p_expression_ternary(p):

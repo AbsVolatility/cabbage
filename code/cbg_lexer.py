@@ -19,9 +19,10 @@ tokens = ['NEW',
           'COMPARISON',
           'FLOAT',
           'INTEGER',
-          'STRING']
+          'STRING',
+          'LOOPVAR']
 
-literals = (',', '+', '-', '*', '/', '^', '(', ')', '[', ']', ':', '{', '}', '?', ';')
+literals = (',', '+', '-', '*', '/', '^', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@')
 
 t_NEW = r'\+[ ]*@'
 t_ASSIGN = r'<@'
@@ -29,7 +30,7 @@ t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PRINT = r'\\@/'
 t_BITWISE = r'\.(&|\||^)'
 t_BOOLEAN = r'&|\|'
-t_UNARY = r'\+(?!@)|-|~|!'
+t_UNARY = r'~|!(?!=)'
 t_RANGE = r'\.\.'
 t_COMPARISON = r'<=|>=|<(?!@)|>|=|!='
 
@@ -45,6 +46,11 @@ def t_INTEGER(t):
 
 def t_STRING(t):
     r"'.*?'"
+    t.value = t.value[1:-1]
+    return t
+
+def t_LOOPVAR(t):
+    r'\|[a-zA-Z_][a-zA-Z0-9_]*\|'
     t.value = t.value[1:-1]
     return t
 

@@ -128,7 +128,7 @@ def lt(a, b):
         raise ValueError
 
 def le(a, b):
-    return lt(a, b) or eq(a, b)
+    return cbgBool(lt(a, b).value or eq(a, b).value)
 
 def eq(a, b):
     return cbgBool(a.value == b.value)
@@ -137,7 +137,7 @@ def ne(a, b):
     return cbgBool(a.value != b.value)
 
 def ge(a, b):
-    return gt(a, b) or eq(a, b)
+    return cbgBool(gt(a, b).value or eq(a, b).value)
 
 def gt(a, b):
     a_type, b_type = a.type, b.type

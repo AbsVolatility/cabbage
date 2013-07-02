@@ -36,7 +36,7 @@ class Expression(Node):
     def __init__(self, value):
         self.value = value
     def __repr__(self):
-        return repr(self.value)
+        return 'Expr({!r})'.format(self.value)
 
 class UnaryOp(Node):
     type = 'unary_op'
@@ -78,7 +78,7 @@ class BinaryOp(Node):
 class Function(Node):
     type = 'function'
     def __init__(self, name, param_lst):
-        self.name = name
+        self.name = {'input': 'input_'}.get(name, name)
         self.param_lst = param_lst
     def __repr__(self):
         return '{}(*{})'.format(self.name, self.param_lst)
@@ -100,6 +100,23 @@ class Ternary(Node):
         self.else_block = else_block
     def __repr__(self):
         return '({!r} ? {!r} : {!r})'.format(self.cond, self.if_block, self.else_block)
+
+class For(Node):
+    type = 'for'
+    def __init__(self, id, lst, code):
+        self.id = id
+        self.lst = lst
+        self.code = code
+    def __repr__(self):
+        return 'For({!r}, {!r}, {!r})'.format(self.id, self.lst, self.code)
+
+class While(Node):
+    type = 'while'
+    def __init__(self, cond, code):
+        self.cond = cond
+        self.code = code
+    def __repr__(self):
+        return 'While({!r}, {!r})'.format(self.cond, self.code)
 
 class Block(Node):
     type = 'block'
