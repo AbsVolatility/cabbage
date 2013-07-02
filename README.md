@@ -11,7 +11,7 @@ Cabbage-oriented programming revolves around the idea of "cabbages". Each cabbag
 
 ## Development
 
-As stated above, the language has only begun to spring from the ground, and is far from complete. An IDE is in development.
+As stated above, the language has only begun to spring from the ground, and is far from complete.
 
 ## Alright, so how do I use it?
 

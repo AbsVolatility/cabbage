@@ -12,7 +12,7 @@ from cbg_lexer import tokens
 from nodes import *
 from cbg_types import *
 
-precedence = [('nonassoc', 'COMPARISON'),
+precedence = [('nonassoc', 'COMPARISON', 'TERNARY'),
               ('left', 'BOOLEAN'),
               ('left', 'BITWISE'),
               ('left', '+', '-'),
@@ -21,18 +21,33 @@ precedence = [('nonassoc', 'COMPARISON'),
               ('right', '^'),
               ('right', 'UNARY')]
 
+def p_s(p):
+    's : stmt_list'
+    p[0] = Block(p[1])
+
+def p_stmt_list(p):
+    '''stmt_list : empty
+                 | stmt_
+                 | stmt_ stmt_list'''
+    p[0] = ([p[1]] + p[2]) if len(p)==3 else ([p[1]] if p[1] else [])
+
+def p_stmt_(p):
+    "stmt_ : stmt ';'"
+    p[0] = p[1]
+
 def p_stmt(p):
     '''stmt : new_stmt
             | print_stmt
             | assign_stmt
             | func_call
-            | expression_stmt'''
+            | expression_stmt
+            | if_stmt'''
     p[0] = p[1]
 
 def p_new(p):
     '''new_stmt : NEW ID
                 | NEW ID ASSIGN expression'''
-    p[0] = New(p[2], p[4] if len(p)==5 else None)
+    p[0] = New(p[2], p[4] if len(p)==5 else cbgNone())
 
 def p_print(p):
     '''print_stmt : PRINT
@@ -46,6 +61,11 @@ def p_assign(p):
 def p_func_call(p):
     "func_call : ID '(' expression_list ')'"
     p[0] = Function(p[1], cbgList(p[3]))
+
+def p_if_stmt(p):
+    """if_stmt : ':' expression '{' stmt_list '}'
+               | ':' expression '{' stmt_list '}' '{' stmt_list '}'"""
+    p[0] = If(p[2], Block(p[4]), Block(p[7]) if len(p)==9 else None)
 
 def p_expression_stmt(p):
     'expression_stmt : expression'
@@ -66,6 +86,10 @@ def p_expression_bin_op(p):
 def p_expression_unary(p):
     'expression : UNARY expression'
     p[0] = UnaryOp(p[1], p[2])
+
+def p_expression_ternary(p):
+    "expression : expression '?' expression ':' expression %prec TERNARY"
+    p[0] = Ternary(p[1], p[3], p[5])
 
 def p_expression_parens(p):
     "expression : '(' expression ')'"
@@ -107,6 +131,7 @@ def p_list(p):
 
 def p_empty(p):
     'empty :'
+    p[0] = ''
 
 def p_error(p):
     print('Syntax Error')

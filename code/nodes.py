@@ -82,3 +82,28 @@ class Function(Node):
         self.param_lst = param_lst
     def __repr__(self):
         return '{}(*{})'.format(self.name, self.param_lst)
+
+class If(Node):
+    type = 'if'
+    def __init__(self, cond, if_block, else_block):
+        self.cond = cond
+        self.if_block = if_block
+        self.else_block = else_block
+    def __repr__(self):
+        return 'If({!r}, {!r}, {!r})'.format(self.cond, self.if_block, self.else_block)
+
+class Ternary(Node):
+    type = 'ternary'
+    def __init__(self, cond, if_block, else_block):
+        self.cond = cond
+        self.if_block = if_block
+        self.else_block = else_block
+    def __repr__(self):
+        return '({!r} ? {!r} : {!r})'.format(self.cond, self.if_block, self.else_block)
+
+class Block(Node):
+    type = 'block'
+    def __init__(self, code):
+        self.code = code
+    def __repr__(self):
+        return 'Block({})'.format(self.code)

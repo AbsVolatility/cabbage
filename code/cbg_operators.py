@@ -45,11 +45,9 @@ def mul(a, b):
         return cbgInteger(a.value * b.value)
     elif a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value * b.value)
-    elif (a_type == 'string' and b_type == 'integer') or \
-         (b_type == 'string' and a_type == 'integer'):
+    elif (a_type == 'string' and b_type == 'integer') or (b_type == 'string' and a_type == 'integer'):
         return cbgString(a.value * b.value)
-    elif (a_type == 'list' and b_type == 'integer') or \
-         (b_type == 'list' and a_type == 'integer'):
+    elif (a_type == 'list' and b_type == 'integer') or (b_type == 'list' and a_type == 'integer'):
         return cbgString(a.value * b.value)
     else:
         raise ValueError

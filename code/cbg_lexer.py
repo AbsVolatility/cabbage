@@ -21,7 +21,7 @@ tokens = ['NEW',
           'INTEGER',
           'STRING']
 
-literals = (',', '+', '-', '*', '/', '^', '(', ')', '[', ']')
+literals = (',', '+', '-', '*', '/', '^', '(', ')', '[', ']', ':', '{', '}', '?', ';')
 
 t_NEW = r'\+[ ]*@'
 t_ASSIGN = r'<@'
@@ -29,9 +29,9 @@ t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PRINT = r'\\@/'
 t_BITWISE = r'\.(&|\||^)'
 t_BOOLEAN = r'&|\|'
-t_UNARY = r'\+|-|~|!'
+t_UNARY = r'\+(?!@)|-|~|!'
 t_RANGE = r'\.\.'
-t_COMPARISON = r'<=|>=|<|>|=|!='
+t_COMPARISON = r'<=|>=|<(?!@)|>|=|!='
 
 def t_FLOAT(t):
     r'[0-9]+\.[0-9]+'

@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.3
+# Documentation for Cabbage v0.4
 
 ## Table of Contents
 
@@ -6,6 +6,7 @@
  - Keywords
  - Operators
  - Functions
+ - Loops and Conditionals
 
 ## Types
 
@@ -13,23 +14,26 @@ There are four types that can be used in Cabbage: integers, floats, strings, and
 
 Strings must be enclosed with single quotes (`'`).
 
+---
+Each statment must end in a semicolon (`;`).
+
 ## Keywords
 
 ### To declare a new variable:
 
-    + @ <id>
+    + @ <id>;
 
-Variables need to be declared before they can be used. If a variable has already been declared with the same name, it will be overwritten. To initiate a variable with a value:
+Variables need to be declared before they can be used. If a variable has already been declared with the same name, it yields an error. To initiate a variable with a value:
 
-    + @ <id> <@ <value>
+    + @ <id> <@ <value>;
 
 ### To assign a variable a new value:
 
-    <id> <@ <value>
+    <id> <@ <value>;
 
 ### The print statement:
 
-    \@/ <value>
+    \@/ <value>;
 
 ## Operators
 
@@ -60,14 +64,36 @@ The range operator can take two integers and return a list of all integers betwe
 
 ## Functions
 
-Functions are called using this global syntax:
+Functions are called using this syntax:
 
-    <func_name>(<param_list>)
+    <func_name>(<param_list>);
 
 The `<param_list>` is a list of values separated by commas (`,`).
 
 ### Builtins
 
-There is currently only one builtin function in Cabbage - `_`
+There are currently two builtin functions in Cabbage - `base`, and `input`
 
-This function can either take a string and convert it from a given base to an integer, or take an integer and convert it to a given base to a string. A custom alphabet can be supplied if you don't want to use the default (the digits 0 - 9 plus all lower-cased letter in order).
+`base` can either take a string and convert it from a given base to an integer, or take an integer and convert it to a given base to a string. A custom alphabet can be supplied if you don't want to use the default (the digits 0 - 9 plus all lower-cased letter in order).
+
+`input` simply takes input from standard in.
+
+## Loops and Conditionals
+
+There are currently no looping contructs available in Cabbage
+
+### If/Else
+
+The `if/else` block is written as such:
+
+    :<cond> { <if-block> };
+
+Or with an additional else block:
+
+    :<cond> { <if-block> }{ <else-block> };
+
+### Ternary
+
+The ternary operator is written as such:
+
+    <cond> ? <if-stmt> : <else-stmt>

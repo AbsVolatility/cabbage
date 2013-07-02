@@ -10,18 +10,22 @@ debug = input('Debug mode? (y/n)> ').lower().startswith('y')
 
 while True:
     s = input('@> ')
+    if s and not s.endswith(';'):
+        while True:
+            s += input('.. ')
+            if s.endswith(';') and (s.count('{') - s.count('}') == 0):
+                break
     if not s:
         if debug:
             print('variables:', namespace)
         continue
     parsed = parser.parse(s)
     if debug:
-        print(parsed)
-    if parsed.type == 'expression':
-        code = 'print("{}")'.format(gen(parsed.value))
-    else:
-        code = gen(parsed)
+        print('parse tree:', parsed)
+        print()
+    code = [gen(i, print_expr=True) for i in parsed.code]
+    code = '\n'.join(['\n'.join(i) if isinstance(i, list) else i for i in code])
     if debug:
-        print(code)
+        print('code:\n' + code)
+    print('\n---\n')
     exec(str(code), namespace)
-

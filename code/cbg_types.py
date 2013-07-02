@@ -42,3 +42,10 @@ class cbgList:
         return 'cbgList({!r})'.format(self.value)
     def __str__(self):
         return str([i.value for i in self.value])
+
+class cbgNone:
+    type = 'none'
+    def __init__(self):
+        self.value = None
+    def __repr__(self):
+        return 'cbgNone()'

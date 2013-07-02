@@ -3,17 +3,29 @@
 #-------------------------------------------------------------------------------
 
 from __future__ import print_function
+import copy
 
 from cbg_lexer import lexer
 from cbg_parser import parser
 
 from cbg_builtins import *
 from cbg_operators import *
+from cbg_types import *
 
-namespace = {'__builtins__': {'print': print},
-             '_': base}
+namespace = {'__builtins__': {'print': print,
+                              'cbgInteger': cbgInteger,
+                              'cbgFloat': cbgFloat,
+                              'cbgString': cbgString,
+                              'cbgList': cbgList,
+                              'cbgBool': cbgBool,
+                              'cbgNone': cbgNone},
+             'base': base,
+             'input': input}
 
-def gen(node):
+def indent(lst):
+    return ['    ' + i for i in lst]  # indent by 4 spaces
+
+def gen(node, print_expr=False):
     node_type = node.type
     if node_type == 'new':
         name = node.name
@@ -40,13 +52,22 @@ def gen(node):
     elif node_type == 'id':
         return eval(node.name, namespace)
     elif node_type == 'expression':
-        return ''
+        return 'print("{}")'.format(gen(node.value)) if print_expr else 'pass'
     elif node_type == 'binary_op':
         return eval('{}({!r}, {!r})'.format(node.op, gen(node.arg1), gen(node.arg2)), globals())
     elif node_type == 'unary_op':
         return eval('{}({!r})'.format(node.op, gen(node.arg)), globals())
     elif node_type == 'function':
         return '{}(*{})'.format(node.name, gen(node.param_list))
+    elif node_type == 'if':
+        code = ['if {}:'.format(gen(node.cond))] + indent(gen(node.if_block))
+        if node.else_block is not None:
+            code += ['else:'] + indent(gen(node.else_block))
+        return code
+    elif node_type == 'ternary':
+        return eval('({}) if ({}) else ({})'.format(gen(node.if_block), gen(node.cond), gen(node.else_block)))
+    elif node_type == 'block':
+        return [gen(i) for i in node.code]
     else:  # a literal value
         return node
 
@@ -54,7 +75,6 @@ def gen(node):
 
 def run(file_name):
     with open(file_name) as f:
-        for line in f:
-            code = code.rstrip(' \n')
-            if code:
-                exec(gen(parser.parse(code)), namespace)
+        code = f.read().replace('\n', '')
+    for block in parser.parse(code):
+        exec(gen(block), namespace)
