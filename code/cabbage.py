@@ -15,32 +15,27 @@ namespace = {'__builtins__': {'print': print, 'repr': repr}}
 namespace.update((i, getattr(cbg_builtins, i)) for i in dir(cbg_builtins) if not i.startswith('__'))
 
 def indent(lst):
-    return ['    ' + i for i in lst]  # indent by 4 spaces
+    def ind(lst, lvl=0):
+        indented = []
+        for i in lst:
+            if isinstance(i, list):
+                indented.extend(ind(i, lvl=lvl+4))
+            else:
+                indented.append(' '*lvl + i.replace('\n', '\n'+' '*lvl))
+        return indented
+    return '\n'.join(ind(lst))
 
 def gen(node, print_expr=False):
     node_type = node.type
-    if node_type == 'new':
+    if node_type == 'assign':
         name = node.name
         if name == '__builtins__':
-            print("Can't assign to '__builtins__'")  # turn into error
-            return ''
-        elif name in namespace:
-            print("Can't reinitialize a variable")  # turn into error
-            return ''
-        else:
-            return '{} = {}'.format(name, gen(node.value))
-    elif node_type == 'assign':
-        name = node.name
-        if name not in namespace:
-            print('Unknown cabbage')  # turn into error
-            return ''
-        elif name == '__builtins__':
             print("Can't assign to '__builtins__'")  # turn into error
             return ''
         else:
             return '{} = {}'.format(name, gen(node.value))
     elif node_type == 'print':
-        return "print({}.value)".format(gen(node.value))
+        return 'print({}.value)'.format(gen(node.value))
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':
@@ -49,21 +44,30 @@ def gen(node, print_expr=False):
         return '{}({}, {})'.format(node.op, gen(node.arg1), gen(node.arg2))
     elif node_type == 'unary_op':
         return '{}({})'.format(node.op, gen(node.arg))
-    elif node_type == 'function':
-        return '{}(*{}.value)'.format(node.name, gen(node.param_lst))
+    elif node_type == 'functiondef':
+        exec(indent(['def _({}):'.format(', '.join(node.vars)), gen(node.code) + ['return cbgNone()']]), namespace)
+        return 'cbgFunction(_)'
+    elif node_type == 'functioncall':
+        return '{}.value(*{})'.format(gen(node.func), gen(node.param_lst))
+    elif node_type == 'paramlist':
+        return [gen(i) for i in node.value]
+    elif node_type == 'return':
+        return 'return {}'.format(gen(node.value))
     elif node_type == 'if':
-        code = ['if {}:'.format(gen(node.cond))] + indent(gen(node.if_block))
+        code = ['if {}.value:'.format(gen(node.cond)), gen(node.if_block)]
         if node.else_block is not None:
-            code += ['else:'] + indent(gen(node.else_block))
-        return code
+            code += ['else:', gen(node.else_block)]
+        return indent(code)
     elif node_type == 'ternary':
-        return '(({}) if ({}) else ({}))'.format(gen(node.if_block), gen(node.cond), gen(node.else_block))
+        return '(({}) if ({}.value) else ({}))'.format(gen(node.if_block), gen(node.cond), gen(node.else_block))
     elif node_type == 'for':
-        return ['for {} in {}.value:'.format(node.id, gen(node.lst))] + indent(gen(node.code))
+        return indent(['for {} in {}.value:'.format(node.id, gen(node.lst)), gen(node.code)])
     elif node_type == 'while':
-        return ['while {}.value:'.format(gen(node.cond))] + indent(gen(node.code))
+        return indent(['while {}.value:'.format(gen(node.cond)), gen(node.code)])
     elif node_type == 'block':
         return [gen(i) for i in node.code]
+    elif node_type == 'list':
+        return 'cbgList([{}])'.format(', '.join(['{}.value'.format(gen(i)) for i in node.value]))
     else:  # a literal value
         return node
 
@@ -72,5 +76,5 @@ def gen(node, print_expr=False):
 def run(file_name):
     with open(file_name) as f:
         code = f.read().replace('\n', '')
-    for block in parser.parse(code):
+    for block in parser.parse(code).code:
         exec(gen(block), namespace)

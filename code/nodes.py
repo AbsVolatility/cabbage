@@ -1,14 +1,6 @@
 class Node:
     pass
 
-class New(Node):
-    type = 'new'
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-    def __repr__(self):
-        return 'New({}, {!r})'.format(self.name, self.value)
-
 class Print(Node):
     type = 'print'
     def __init__(self, value):
@@ -57,6 +49,7 @@ class BinaryOp(Node):
                    '*': 'mul',
                    '/': 'div',
                    '^': 'pow_',
+                   '%': 'mod',
                    '<': 'lt',
                    '<=': 'le',
                    '=': 'eq',
@@ -75,13 +68,35 @@ class BinaryOp(Node):
     def __repr__(self):
         return '({!r} {} {!r})'.format(self.arg1, self.op, self.arg2)
 
-class Function(Node):
-    type = 'function'
-    def __init__(self, name, param_lst):
-        self.name = {'input': 'input_'}.get(name, name)
+class FunctionDef(Node):
+    type = 'functiondef'
+    def __init__(self, vars, code):
+        self.vars = vars
+        self.code = code
+    def __repr__(self):
+        return 'Function({!r}, {!r})'.format(self.vars, self.code)
+
+class FunctionCall(Node):
+    type = 'functioncall'
+    def __init__(self, func, param_lst):
+        self.func = {'input': 'input_'}.get(func, func)
         self.param_lst = param_lst
     def __repr__(self):
-        return '{}(*{})'.format(self.name, self.param_lst)
+        return '{}(*{})'.format(self.func, self.param_lst)
+
+class ParamList(Node):
+    type = 'paramlist'
+    def __init__(self, value):
+        self.value = value
+    def __repr__(self):
+        return 'ParamList({!r})'.format(self.value)
+
+class Return(Node):
+    type = 'return'
+    def __init__(self, value):
+        self.value = value
+    def __repr__(self):
+        return 'Return({!r})'.format(self.value)
 
 class If(Node):
     type = 'if'

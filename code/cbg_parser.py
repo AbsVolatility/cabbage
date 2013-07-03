@@ -17,6 +17,7 @@ precedence = [('nonassoc', 'COMPARISON', 'TERNARY'),
               ('left', 'BITWISE'),
               ('left', '+', '-'),
               ('nonassoc', 'RANGE'),
+              ('left', '%'),
               ('left', '*', '/'),
               ('right', '^'),
               ('right', 'UNARY')]
@@ -35,19 +36,14 @@ def p_stmt_(p):
     p[0] = p[1]
 
 def p_stmt(p):
-    '''stmt : new_stmt
-            | print_stmt
+    '''stmt : print_stmt
             | assign_stmt
             | expression_stmt
             | if_stmt
             | for_loop
-            | while_loop'''
+            | while_loop
+            | return_stmt'''
     p[0] = p[1]
-
-def p_new(p):
-    '''new_stmt : NEW ID
-                | NEW ID ASSIGN expression'''
-    p[0] = New(p[2], p[4] if len(p)==5 else cbgNone())
 
 def p_print(p):
     '''print_stmt : PRINT
@@ -64,20 +60,20 @@ def p_if_stmt(p):
     p[0] = If(p[2], Block(p[4]), Block(p[7]) if len(p)==9 else None)
 
 def p_for_loop(p):
-    "for_loop : '@' LOOPVAR expression '{' stmt_list '}'"
-    p[0] = For(p[2], p[3], Block(p[5]))
+    "for_loop : '@' ID ':' expression '{' stmt_list '}'"
+    p[0] = For(p[2], p[4], Block(p[6]))
 
 def p_while_loop(p):
     "while_loop : '@' expression '{' stmt_list '}'"
     p[0] = While(p[2], Block(p[4]))
 
+def p_return_stmt(p):
+    "return_stmt : '~' expression"
+    p[0] = Return(p[2])
+
 def p_expression_stmt(p):
     'expression_stmt : expression'
     p[0] = Expression(p[1])
-
-def p_func_call(p):
-    "expression : ID '(' expression_list ')'"
-    p[0] = Function(p[1], cbgList(p[3]))
 
 def p_expression_bin_op(p):
     '''expression : expression '+' expression
@@ -85,6 +81,7 @@ def p_expression_bin_op(p):
                   | expression '*' expression
                   | expression '/' expression
                   | expression '^' expression
+                  | expression '%' expression
                   | expression COMPARISON expression
                   | expression BITWISE expression
                   | expression BOOLEAN expression
@@ -105,6 +102,14 @@ def p_expression_parens(p):
     "expression : '(' expression ')'"
     p[0] = p[2]
 
+def p_func_call(p):
+    "expression : ID '(' expression_list ')'"
+    p[0] = FunctionCall(Id(p[1]), ParamList(p[3]))
+
+def p_func_call_lit(p):
+    "expression : literal '(' expression_list ')'"
+    p[0] = FunctionCall(p[1], ParamList(p[3]))
+
 def p_expression_literal(p):
     'expression : literal'
     p[0] = p[1]
@@ -119,6 +124,16 @@ def p_expression_list(p):
                        | expression ',' expression_list'''
     p[0] = ([p[1]] + p[3]) if len(p)==4 else ([p[1]] if p[1] else [])
 
+def p_func_def(p):
+    "literal : '{' id_list ':' stmt_list '}'"
+    p[0] = FunctionDef(p[2], Block(p[4]))
+
+def p_id_list(p):
+    '''id_list : empty
+               | ID
+               | ID ',' id_list'''
+    p[0] = ([p[1]] + p[3]) if len(p)==4 else ([p[1]] if p[1] else [])
+
 def p_literal_integer(p):
     'literal : INTEGER'
     p[0] = cbgInteger(p[1])
@@ -131,7 +146,7 @@ def p_literal_string(p):
     'literal : STRING'
     p[0] = cbgString(p[1])
 
-def p_literal_list(p):
+def p_literal_other(p):
     'literal : list'
     p[0] = p[1]
 

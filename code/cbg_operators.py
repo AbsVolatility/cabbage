@@ -54,6 +54,8 @@ def mul(a, b):
 
 def div(a, b):
     a_type, b_type = a.type, b.type
+    if a_type == b_type == 'integer' and mod(a, b).value == 0:
+        return cbgInteger(a.value // b.value)
     if a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value / b.value)
     else:
@@ -65,6 +67,12 @@ def pow_(a, b):
         return cbgInteger(a.value ** b.value)
     elif a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value ** b.value)
+    else:
+        raise ValueError
+
+def mod(a, b):
+    if a.type in ('integer', 'float') and b.type in ('integer', 'float'):
+        return cbgFloat(a.value % b.value)
     else:
         raise ValueError
 

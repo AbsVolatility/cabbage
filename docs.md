@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.4
+# Documentation for Cabbage v0.5
 
 ## Table of Contents
 
@@ -10,26 +10,30 @@
 
 ## Types
 
-There are four types that can be used in Cabbage: integers, floats, strings, and lists. Currently, every type is support by every mode, with the exception that rebel mode does not support float values.
+There are six types in Cabbage: integers, floats, strings, lists, booleans and functions.
 
 Strings must be enclosed with single quotes (`'`).
+
+Lists are contained inside square brackets (`[]`) and elements are separated by commas.
+
+Functions can be defined as such:
+
+    {<params>: <stmts>};
+
+To set a return value for the function (other than the default `None`), you add this in the function definition where you want it to return:
+
+    ~ <return-value>;
+
+Note that the function stops execution once it hits a return statement. There can however be multiple return statements, usually used with conditional blocks.
 
 ---
 Each statment must end in a semicolon (`;`).
 
 ## Keywords
 
-### To declare a new variable:
+### To assign a variable a value:
 
-    + @ <id>;
-
-Variables need to be declared before they can be used. If a variable has already been declared with the same name, it yields an error. To initiate a variable with a value:
-
-    + @ <id> <@ <value>;
-
-### To assign a variable a new value:
-
-    <id> <@ <value>;
+    <id> <- <value>;
 
 ### The print statement:
 
@@ -39,15 +43,15 @@ Variables need to be declared before they can be used. If a variable has already
 
 ### Arithmetic
 
-    # a + b, a - b, a * b, a / b, a ** b
-    a + b, a - b, a * b, a / b, a ^ b
+    # a + b, a - b, a * b, a / b, a ** b, a % b
+    a + b, a - b, a * b, a / b, a ^ b, a % b
 
-The `+` and `*` operators can also be used with strings and list. A string plus another string concatenates the two and returns the result. A string multiplied by a integer repeats the string the given number of times and concatenates the result. The same applies with lists.
+The `+` and `*` operators can also be used with strings and list. A string plus another string concatenates the two and returns the result. A string multiplied by a integer repeats the string the given number of times and concatenates the result. The same applies with lists. All other operators can only be used with numbers.
 
 ### Bitwise
 
     # a & b, a | b, a ^ b, ~a
-    a .& b, a .| b, a .^ b, ~a
+    a .& b, a .| b, a .^ b, .~a
 
 ### Comparisons
 
@@ -84,7 +88,7 @@ There are currently two builtin functions in Cabbage - `base`, and `input`
 
 The `for` loop is written as such:
 
-    @ | <var> | { <code> };
+    @  <var> : <iterable> { <code> };
 
 ### While
 

@@ -8,8 +8,7 @@ from __future__ import print_function
 
 from ply import lex
 
-tokens = ['NEW',
-          'ASSIGN',
+tokens = ['ASSIGN',
           'ID',
           'PRINT',
           'BITWISE',
@@ -19,20 +18,18 @@ tokens = ['NEW',
           'COMPARISON',
           'FLOAT',
           'INTEGER',
-          'STRING',
-          'LOOPVAR']
+          'STRING']
 
-literals = (',', '+', '-', '*', '/', '^', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@')
+literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~')
 
-t_NEW = r'\+[ ]*@'
-t_ASSIGN = r'<@'
+t_ASSIGN = r'<-'
 t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PRINT = r'\\@/'
 t_BITWISE = r'\.(&|\||^)'
 t_BOOLEAN = r'&|\|'
-t_UNARY = r'~|!(?!=)'
+t_UNARY = r'\.~|!(?!=)'
 t_RANGE = r'\.\.'
-t_COMPARISON = r'<=|>=|<(?!@)|>|=|!='
+t_COMPARISON = r'<=|>=|<(?!-)|>|=|!='
 
 def t_FLOAT(t):
     r'[0-9]+\.[0-9]+'
@@ -46,11 +43,6 @@ def t_INTEGER(t):
 
 def t_STRING(t):
     r"'.*?'"
-    t.value = t.value[1:-1]
-    return t
-
-def t_LOOPVAR(t):
-    r'\|[a-zA-Z_][a-zA-Z0-9_]*\|'
     t.value = t.value[1:-1]
     return t
 
