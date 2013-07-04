@@ -7,29 +7,42 @@
 from __future__ import print_function
 
 from ply import lex
+from cbg_errors import CbgSyntaxError
+
+reserved = {'True': 'TRUE',
+            'False': 'FALSE',
+            'None': 'NONE'}
 
 tokens = ['ASSIGN',
-          'ID',
           'PRINT',
           'BITWISE',
           'BOOLEAN',
           'UNARY',
           'RANGE',
           'COMPARISON',
+          'ID',
           'FLOAT',
           'INTEGER',
-          'STRING']
+          'STRING'] + list(reserved.values())
 
 literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~')
 
 t_ASSIGN = r'<-'
-t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_PRINT = r'\\@/'
 t_BITWISE = r'\.(&|\||^)'
 t_BOOLEAN = r'&|\|'
 t_UNARY = r'\.~|!(?!=)'
 t_RANGE = r'\.\.'
 t_COMPARISON = r'<=|>=|<(?!-)|>|=|!='
+
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value, 'ID')
+    if t.type != 'ID':
+        t.value = {'True': True,
+                   'False': False,
+                   'None': None}[t.value]
+    return t
 
 def t_FLOAT(t):
     r'[0-9]+\.[0-9]+'
@@ -53,9 +66,6 @@ def t_newline(t):
 t_ignore = ' '
 
 def t_error(t):
-    # turn below into error
-    print("Syntax Error: illegal character '{}'".format(t.value[0]))
-    t.lexer.skip(1)
-    return t
+    raise CbgSyntaxError("illegal character '{}'".format(t.value[0]))
 
 lexer = lex.lex()

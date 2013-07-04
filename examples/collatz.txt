@@ -3,6 +3,6 @@ collatz <- { i:
              @ i!=1
                { i <- i%2=0 ? i/2 : 3*i + 1;
                  seq <- seq + [i]; };
-             -> seq; };
+             ~ seq; };
 
-collatz(17);
+\@/ collatz(17);

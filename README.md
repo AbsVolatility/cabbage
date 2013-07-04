@@ -15,7 +15,7 @@ As stated above, the language has only begun to spring from the ground, and is f
 
 ## Alright, so how do I use it?
 
-First, make sure you have Python (2 or 3) installed. Download the files and run the "interpreter.py" program. At the beginning of each session it will ask whether to enter 'debug' mode. This allows you to see the parse tree and code generation for the input. This is only temporary, and will only be available in the development phase.
+First, make sure you have Python (2.6+ or 3.0+) installed. Download the files and run the "interpreter.py" program. At the beginning of each session it will ask whether to enter 'debug' mode. This allows you to see the parse tree and code generation for the input. This is only temporary, and will only be available in the development phase.
 
 To run a complete program, run the "cabbage.py" program, and input `run(<filename>)`, replacing `<filename>` with the name of the file you want to run.
 

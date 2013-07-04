@@ -68,6 +68,23 @@ class BinaryOp(Node):
     def __repr__(self):
         return '({!r} {} {!r})'.format(self.arg1, self.op, self.arg2)
 
+class Slice(Node):
+    type = 'slice'
+    def __init__(self, lst, index):
+        self.lst = lst
+        self.index = index
+    def __repr__(self):
+        return 'Slice({!r}, {!r})'.format(self.lst, self.index)
+
+class Slce(Node):
+    type = 'slce'
+    def __init__(self, start, stop, step):
+        self.start = start
+        self.stop = stop
+        self.step = step
+    def __repr__(self):
+        return 'Slce({!r}, {!r}, {!r})'.format(self.start, self.stop, self.step)
+
 class FunctionDef(Node):
     type = 'functiondef'
     def __init__(self, vars, code):
@@ -100,12 +117,19 @@ class Return(Node):
 
 class If(Node):
     type = 'if'
-    def __init__(self, cond, if_block, else_block):
+    def __init__(self, cond, if_block):
         self.cond = cond
         self.if_block = if_block
+    def __repr__(self):
+        return 'If({!r}, {!r})'.format(self.cond, self.if_block)
+
+class Ifs(Node):
+    type = 'ifs'
+    def __init__(self, if_blocks, else_block):
+        self.if_blocks = if_blocks
         self.else_block = else_block
     def __repr__(self):
-        return 'If({!r}, {!r}, {!r})'.format(self.cond, self.if_block, self.else_block)
+        return 'Ifs({!r}, {!r})'.format(self.if_blocks, self.else_block)
 
 class Ternary(Node):
     type = 'ternary'
@@ -124,6 +148,11 @@ class For(Node):
         self.code = code
     def __repr__(self):
         return 'For({!r}, {!r}, {!r})'.format(self.id, self.lst, self.code)
+
+class Break(Node):
+    type = 'break'
+    def __repr__(self):
+        return 'Break()'
 
 class While(Node):
     type = 'while'

@@ -9,6 +9,7 @@ from cbg_lexer import lexer
 from cbg_parser import parser
 
 import cbg_builtins
+from cbg_errors import *
 
 namespace = {'__builtins__': {'print': print, 'repr': repr}}
 
@@ -25,21 +26,20 @@ def indent(lst):
         return indented
     return '\n'.join(ind(lst))
 
-def gen(node, print_expr=False):
+def gen(node, print_expr=False, el=False):
     node_type = node.type
     if node_type == 'assign':
         name = node.name
         if name == '__builtins__':
-            print("Can't assign to '__builtins__'")  # turn into error
-            return ''
+            raise NameError("Can't assign to '__builtins__'")
         else:
             return '{} = {}'.format(name, gen(node.value))
     elif node_type == 'print':
-        return 'print({}.value)'.format(gen(node.value))
+        return 'print(getval({}))'.format(gen(node.value))
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':
-        return 'print(repr({}.value))'.format(gen(node.value)) if print_expr else 'pass'
+        return 'print(repr(getval({})))'.format(gen(node.value)) if print_expr else 'pass'
     elif node_type == 'binary_op':
         return '{}({}, {})'.format(node.op, gen(node.arg1), gen(node.arg2))
     elif node_type == 'unary_op':
@@ -48,26 +48,36 @@ def gen(node, print_expr=False):
         exec(indent(['def _({}):'.format(', '.join(node.vars)), gen(node.code) + ['return cbgNone()']]), namespace)
         return 'cbgFunction(_)'
     elif node_type == 'functioncall':
-        return '{}.value(*{})'.format(gen(node.func), gen(node.param_lst))
+        return '{}.value({})'.format(gen(node.func), gen(node.param_lst))
     elif node_type == 'paramlist':
-        return [gen(i) for i in node.value]
+        return ', '.join([str(gen(i)) for i in node.value])
     elif node_type == 'return':
         return 'return {}'.format(gen(node.value))
-    elif node_type == 'if':
-        code = ['if {}.value:'.format(gen(node.cond)), gen(node.if_block)]
+    elif node_type == 'break':
+        return 'break'
+    elif node_type == 'ifs':
+        code = [gen(node.if_blocks[0])] + [gen(i, el=True) for i in node.if_blocks[1:]]
         if node.else_block is not None:
-            code += ['else:', gen(node.else_block)]
-        return indent(code)
+            code += [indent(['else:', gen(node.else_block)])]
+        return '\n'.join(code)
+    elif node_type == 'if':
+        return indent(['{}if {}.value:'.format('el' if el else '', gen(node.cond)), gen(node.if_block)])
     elif node_type == 'ternary':
         return '(({}) if ({}.value) else ({}))'.format(gen(node.if_block), gen(node.cond), gen(node.else_block))
     elif node_type == 'for':
         return indent(['for {} in {}.value:'.format(node.id, gen(node.lst)), gen(node.code)])
     elif node_type == 'while':
         return indent(['while {}.value:'.format(gen(node.cond)), gen(node.code)])
+    elif node_type == 'dowhile':
+        return indent(['while True:', gen(node.code) + ['if {}.value:'.format(node.cond), ['break']]])
     elif node_type == 'block':
         return [gen(i) for i in node.code]
     elif node_type == 'list':
-        return 'cbgList([{}])'.format(', '.join(['{}.value'.format(gen(i)) for i in node.value]))
+        return 'cbgList([{}])'.format(', '.join([str(gen(i)) for i in node.value]))
+    elif node_type == 'slice':
+        return 'slce({}, {})'.format(gen(node.lst), gen(node.index))
+    elif node_type == 'slce':
+        return 'cbgList([{}, {}, {}])'.format(gen(node.start), gen(node.stop), gen(node.step))
     else:  # a literal value
         return node
 
@@ -76,5 +86,10 @@ def gen(node, print_expr=False):
 def run(file_name):
     with open(file_name) as f:
         code = f.read().replace('\n', '')
-    for block in parser.parse(code).code:
-        exec(gen(block), namespace)
+    try:
+        for block in parser.parse(code).code:
+            exec(gen(block), namespace)
+    except CbgException as e:
+        print('{}{}'.format(e.type, ': ' + str(e) if str(e) else ''))
+    except NameError as e:
+        print('NameError:', str(e))

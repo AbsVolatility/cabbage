@@ -46,6 +46,8 @@ class cbgNone:
         self.value = None
     def __repr__(self):
         return 'cbgNone()'
+    def __bool__(self):
+        return False
 
 class cbgVar:
     type = 'var'
