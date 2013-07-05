@@ -7,13 +7,13 @@
 from __future__ import print_function
 
 from ply import lex
-from cbg_errors import CbgSyntaxError
 
-reserved = {'True': 'TRUE',
-            'False': 'FALSE',
-            'None': 'NONE'}
+reserved = {'true': 'TRUE',
+            'false': 'FALSE',
+            'none': 'NONE'}
 
 tokens = ['ASSIGN',
+          'AUGASSIGN',
           'PRINT',
           'BITWISE',
           'BOOLEAN',
@@ -25,23 +25,24 @@ tokens = ['ASSIGN',
           'INTEGER',
           'STRING'] + list(reserved.values())
 
-literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~')
+literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~', '<')
 
 t_ASSIGN = r'<-'
+t_AUGASSIGN = r'(\+|-|\*|/|\^|%|\.(&|\||\^))<'
 t_PRINT = r'\\@/'
-t_BITWISE = r'\.(&|\||^)'
-t_BOOLEAN = r'&|\|'
-t_UNARY = r'\.~|!(?!=)'
+t_BITWISE = r'\.(&|\||\^)'
+t_BOOLEAN = r'&&|\|\|'
+t_UNARY = r'\.~|!(?!=)|\|'
 t_RANGE = r'\.\.'
-t_COMPARISON = r'<=|>=|<(?!-)|>|=|!='
+t_COMPARISON = r'<=|>=|<(?!-|[ ]*;)|>|=|!='
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     t.type = reserved.get(t.value, 'ID')
     if t.type != 'ID':
-        t.value = {'True': True,
-                   'False': False,
-                   'None': None}[t.value]
+        t.value = {'true': True,
+                   'false': False,
+                   'none': None}[t.value]
     return t
 
 def t_FLOAT(t):
@@ -66,6 +67,6 @@ def t_newline(t):
 t_ignore = ' '
 
 def t_error(t):
-    raise CbgSyntaxError("illegal character '{}'".format(t.value[0]))
+    raise SyntaxError("illegal character '{}'".format(t.value[0]))
 
 lexer = lex.lex()

@@ -1,22 +1,23 @@
 from cbg_types import *
-from cbg_errors import *
 
 #-------------------------------------------------------------------------------
 # Arithmetic operators
 
 def uplus(a):
-    if a.type in ('integer', 'float'):
-        return a
-    else:
-        raise CbgTypeError("unary operator '+' not defined for type '{}'".format(a.type))
+    return a
 
 def uminus(a):
-    if a.type == 'integer':
+    a_type = a.type
+    if a_type == 'integer':
         return cbgInteger(-a.value)
-    elif a.type == 'float':
+    elif a_type == 'float':
         return cbgFloat(-a.value)
+    elif a_type == 'list':
+        return cbgList(a.value[::-1])
+    elif a_type == 'string':
+        return cbgString(a.value[::-1])
     else:
-        raise CbgTypeError("unary operator '-' not defined for type '{}'".format(a.type))
+        raise TypeError("unary operator '-' not defined for type '{}'".format(a_type))
 
 def add(a, b):
     a_type, b_type = a.type, b.type
@@ -29,7 +30,7 @@ def add(a, b):
     elif a_type == b_type == 'list':
         return cbgList(a.value + b.value)
     else:
-        raise CbgTypeError("binary operator '+' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '+' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def sub(a, b):
     a_type, b_type = a.type, b.type
@@ -38,7 +39,7 @@ def sub(a, b):
     elif a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value - b.value)
     else:
-        raise CbgTypeError("binary operator '-' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '-' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def mul(a, b):
     a_type, b_type = a.type, b.type
@@ -51,7 +52,7 @@ def mul(a, b):
     elif (a_type == 'list' and b_type == 'integer') or (b_type == 'list' and a_type == 'integer'):
         return cbgString(a.value * b.value)
     else:
-        raise CbgTypeError("binary operator '*' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '*' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def div(a, b):
     a_type, b_type = a.type, b.type
@@ -60,7 +61,7 @@ def div(a, b):
     if a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value / b.value)
     else:
-        raise CbgTypeError("binary operator '/' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '/' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def pow_(a, b):
     a_type, b_type = a.type, b.type
@@ -69,13 +70,38 @@ def pow_(a, b):
     elif a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgFloat(a.value ** b.value)
     else:
-        raise CbgTypeError("binary operator '^' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '^' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def mod(a, b):
-    if a.type in ('integer', 'float') and b.type in ('integer', 'float'):
+    if a.type == b.type == 'integer':
+        return cbgInteger(a.value % b.value)
+    elif a.type in ('integer', 'float') and b.type in ('integer', 'float'):
         return cbgFloat(a.value % b.value)
     else:
-        raise CbgTypeError("binary operator '%' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '%' not defined for types '{}' and '{}'".format(a.type, b.type))
+
+def abs(a):
+    a_type = a.type
+    if a_type == 'integer':
+        return cbgInteger(sgn(a).value*a.value)
+    elif a_type == 'float':
+        return cbgFloat(sgn(a).value*a.value)
+    elif a_type in ('list', 'string'):
+        return cbgInteger(len(a.value))
+    else:
+        raise TypeError("unary operator '|' not defined for type '{}'".format(a_type))
+#
+def sgn(a):
+    if a.type in ('integer', 'float'):
+        a_value = a.value
+        if a_value < 0:
+            return cbgInteger(-1)
+        elif a_value > 0:
+            return cbgInteger(1)
+        else:
+            return cbgInteger(0)
+    else:
+        raise TypeError("unary operator '*' not defined for type '{}'".format(a.type))
 
 #-------------------------------------------------------------------------------
 # Bitwise operators
@@ -84,25 +110,25 @@ def bwand(a, b):
     if a.type == b.type == 'integer':
         return cbgInteger(a.value & b.value)
     else:
-        raise CbgTypeError("binary operator '.&' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '.&' not defined for types '{}' and '{}'".format(a.type, b.type))
 
 def bwor(a, b):
     if a.type == b.type == 'integer':
         return cbgInteger(a.value | b.value)
     else:
-        raise CbgTypeError("binary operator '.|' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '.|' not defined for types '{}' and '{}'".format(a.type, b.type))
 
 def bwxor(a, b):
     if a.type == b.type == 'integer':
         return cbgInteger(a.value ^ b.value)
     else:
-        raise CbgTypeError("binary operator '.^' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '.^' not defined for types '{}' and '{}'".format(a.type, b.type))
 
 def bwnot(a):
     if a.type == 'integer':
         return cbgInteger(~a.value)
     else:
-        raise CbgTypeError("unary operator '.~' not defined for type '{}'".format(a.type))
+        raise TypeError("unary operator '.~' not defined for type '{}'".format(a.type))
 
 #-------------------------------------------------------------------------------
 # Boolean operators
@@ -111,13 +137,13 @@ def bland(a, b):
     if a.type == b.type == 'bool':
         return cbgBool(a.value and b.value)
     else:
-        raise CbgTypeError("binary operator '&' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '&' not defined for types '{}' and '{}'".format(a.type, b.type))
 
 def blor(a, b):
     if a.type == b.type == 'bool':
         return cbgBool(a.value or b.value)
     else:
-        raise CCbgTypeError("binary operator '|' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '|' not defined for types '{}' and '{}'".format(a.type, b.type))
 
 def blnot(a):
     return cbgBool(not a.value)
@@ -131,7 +157,7 @@ def lt(a, b):
     if a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgBool(a.value < b.value)
     else:
-        raise CbgTypeError("binary operator '<' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '<' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 def le(a, b):
     return cbgBool(lt(a, b).value or eq(a, b).value)
@@ -150,7 +176,7 @@ def gt(a, b):
     if a_type in ('integer', 'float') and b_type in ('integer', 'float'):
         return cbgBool(a.value > b.value)
     else:
-        raise CbgTypeError("binary operator '>' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '>' not defined for types '{}' and '{}'".format(a_type, b_type))
 
 #-------------------------------------------------------------------------------
 # Sequence operators
@@ -163,19 +189,19 @@ def slce(lst, index):
         elif lst_type == 'list':
             return lst.value[index.value]
         else:
-            raise CbgTypeError("'{}' object is not subscriptable".format(lst.type))
+            raise TypeError("'{}' object is not subscriptable".format(lst_type))
     if index.type == 'list':
         if not all(i.type in ('integer', 'none') for i in index.value):
-            raise CbgTypeError("slice values must be integers or 'None'")
+            raise TypeError("slice values must be integers or 'None'")
         lst_type = lst.type
         if lst_type == 'string':
             return cbgString(lst.value[slice(*[i.value for i in index.value])])
         elif lst_type == 'list':
             return cbgList(lst.value[slice(*[i.value for i in index.value])])
         else:
-            raise CbgTypeError("'{}' object is not subscriptable".format(lst.type))
+            raise TypeError("'{}' object is not subscriptable".format(lst_type))
     else:
-        raise CbgTypeError("invalid index type '{}'".format(index.type))
+        raise TypeError("invalid index type '{}'".format(index.type))
 
 #-------------------------------------------------------------------------------
 # Other operators
@@ -184,4 +210,4 @@ def rnge(a, b):
     if a.type == b.type == 'integer':
         return cbgList([cbgInteger(i) for i in range(a.value, b.value+1)])
     else:
-        raise CbgTypeError("binary operator '..' not defined for types '{}' and '{}'".format(a.type, b.type))
+        raise TypeError("binary operator '..' not defined for types '{}' and '{}'".format(a.type, b.type))

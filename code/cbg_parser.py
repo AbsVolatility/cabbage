@@ -11,7 +11,6 @@ from ply import yacc
 from cbg_lexer import tokens
 from nodes import *
 from cbg_types import *
-from cbg_errors import CbgSyntaxError
 
 precedence = [('nonassoc', 'COMPARISON', 'TERNARY'),
               ('left', 'BOOLEAN'),
@@ -40,6 +39,8 @@ def p_stmt_(p):
 def p_stmt(p):
     '''stmt : print_stmt
             | assign_stmt
+            | augassign_stmt
+            | unary_augassign_stmt
             | expression_stmt
             | if_stmt
             | for_loop
@@ -56,6 +57,22 @@ def p_print(p):
 def p_assign(p):
     'assign_stmt : ID ASSIGN expression'
     p[0] = Assign(p[1], p[3])
+
+def p_augassign(p):
+    'augassign_stmt : ID AUGASSIGN expression'
+    p[0] = augassign(p[2], p[1], p[3])
+
+def p_unary_augassign(p):
+    "unary_augassign_stmt : unary_id '<'"
+    p[0] = unary_augassign(p[1][:-1], p[1][-1])
+
+def p_unary_id(p):
+    '''unary_id : ID
+                | UNARY unary_id
+                | '+' unary_id %prec UNARY
+                | '-' unary_id %prec UNARY
+                | '*' unary_id %prec UNARY'''
+    p[0] = [p[1]] + (p[2] if len(p)==3 else [])
 
 def p_if_stmt(p):
     """if_stmt : if_block
@@ -84,7 +101,7 @@ def p_break_stmt(p):
     p[0] = Break()
 
 def p_expression_stmt(p):
-    'expression_stmt : expression'
+    '''expression_stmt : expression'''
     p[0] = Expression(p[1])
 
 def p_expression_bin_op(p):
@@ -102,8 +119,9 @@ def p_expression_bin_op(p):
 
 def p_expression_unary(p):
     '''expression : UNARY expression
-                  | '+' expression
-                  | '-' expression'''
+                  | '+' expression %prec UNARY
+                  | '-' expression %prec UNARY
+                  | '*' expression %prec UNARY'''
     p[0] = UnaryOp(p[1], p[2])
 
 def p_expression_ternary(p):
@@ -183,7 +201,7 @@ def p_literal_none(p):
     p[0] = cbgNone()
 
 def p_literal_other(p):
-    'literal : list'
+    '''literal : list'''
     p[0] = p[1]
 
 def p_list(p):
@@ -195,6 +213,6 @@ def p_empty(p):
     p[0] = cbgNone()
 
 def p_error(p):
-    raise CbgSyntaxError('invalid syntax')
+    raise SyntaxError('invalid syntax')
 
 parser = yacc.yacc()

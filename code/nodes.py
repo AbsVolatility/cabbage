@@ -16,6 +16,15 @@ class Assign(Node):
     def __repr__(self):
         return 'Assign({}, {!r})'.format(self.name, self.value)
 
+def augassign(op, name, value):
+    return Assign(name, BinaryOp(op[:-1], Id(name), value))
+
+def unary_augassign(ops, name):
+    unary_ops = Id(name)
+    while ops:
+        unary_ops = UnaryOp(ops.pop(), unary_ops)
+    return Assign(name, unary_ops)
+
 class Id(Node):
     type = 'id'
     def __init__(self, name):
@@ -36,7 +45,9 @@ class UnaryOp(Node):
         self.op = {'+': 'uplus',
                    '-': 'uminus',
                    '~': 'bwnot',
-                   '!': 'blnot'}.get(op, op)
+                   '!': 'blnot',
+                   '|': 'abs',
+                   '*': 'sgn'}.get(op, op)
         self.arg = arg
     def __repr__(self):
         return '({} {!r})'.format(self.op, self.arg)

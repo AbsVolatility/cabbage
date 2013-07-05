@@ -16,8 +16,6 @@ while True:
             if s.endswith(';') and (s.count('{') - s.count('}') == 0):
                 break
     if not s:
-        if debug:
-            print('variables:', namespace)
         continue
     try:
         parsed = parser.parse(s)
@@ -30,7 +28,5 @@ while True:
             print('code:\n' + code)
             print('\n---\n')
         exec(str(code), namespace)
-    except CbgException as e:
-        print('{}{}'.format(e.type, ': ' + str(e) if str(e) else ''))
-    except NameError as e:
-        print('NameError:', str(e))
+    except Exception as e:
+        print('{}: {}'.format(type(e).__name__, str(e)))

@@ -3,17 +3,15 @@
 #-------------------------------------------------------------------------------
 
 from __future__ import print_function
-import copy
 
 from cbg_lexer import lexer
 from cbg_parser import parser
 
 import cbg_builtins
-from cbg_errors import *
 
 namespace = {'__builtins__': {'print': print, 'repr': repr}}
 
-namespace.update((i, getattr(cbg_builtins, i)) for i in dir(cbg_builtins) if not i.startswith('__'))
+namespace['__builtins__'].update((i, getattr(cbg_builtins, i)) for i in dir(cbg_builtins) if not i.startswith('__'))
 
 def indent(lst):
     def ind(lst, lvl=0):
@@ -39,7 +37,7 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':
-        return 'print(repr(getval({})))'.format(gen(node.value)) if print_expr else 'pass'
+        return 'print(getval({}, repr_=True))'.format(gen(node.value)) if print_expr else 'pass'
     elif node_type == 'binary_op':
         return '{}({}, {})'.format(node.op, gen(node.arg1), gen(node.arg2))
     elif node_type == 'unary_op':
@@ -89,7 +87,5 @@ def run(file_name):
     try:
         for block in parser.parse(code).code:
             exec(gen(block), namespace)
-    except CbgException as e:
-        print('{}{}'.format(e.type, ': ' + str(e) if str(e) else ''))
-    except NameError as e:
-        print('NameError:', str(e))
+    except Exception as e:
+        print('{}: {}'.format(type(e).__name__, str(e)))

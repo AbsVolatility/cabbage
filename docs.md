@@ -14,7 +14,10 @@ There are six types in Cabbage: integers, floats, strings, lists, booleans and f
 
 Strings must be enclosed with single quotes (`'`).
 
-Lists are contained inside square brackets (`[]`) and elements are separated by commas.
+Lists are contained inside square brackets (`[]`) and elements are separated by commas. Lists (and strings) can be indexed\sliced with this syntax:
+
+    <sequence>[<index>]
+    <sequence>[<start>:<stop>:<step>]
 
 Functions can be defined as such:
 
@@ -31,9 +34,23 @@ Each statment must end in a semicolon (`;`).
 
 ## Keywords
 
-### To assign a variable a value:
+### Assignment:
 
     <id> <- <value>;
+
+### Augmented Assignment
+
+    <id> <op>< <value>;
+
+`<op> should be replaced by one of these operators:
+
+    +, -, *, /, ^, %, .&, .|, .^
+
+There is also support for a sort of "unary augmented assignment":
+
+    <op(s)><id> <;
+
+Where `<op(s)>` should be replaced by one or more unary operators. For example, `-a<;` is equivalent to `a <- -a;`
 
 ### The print statement:
 
@@ -50,8 +67,13 @@ The `+` and `*` operators can also be used with strings and list. A string plus 
 
 ### Bitwise
 
-    # a & b, a | b, a ^ b, ~a
-    a .& b, a .| b, a .^ b, .~a
+    # a & b, a | b, a ^ b
+    a .& b, a .| b, a .^ b
+
+### Boolean
+
+    # a and b, a or b
+    a && b, a || b
 
 ### Comparisons
 
@@ -65,6 +87,17 @@ The `<`, `<=`, `>=` and `>` operators can currently only be used with numbers.
 The range operator can take two integers and return a list of all integers between the two values, including those values. The syntax is:
 
     a .. b
+
+### Unary
+
+These are the unary operators:
+
+ - `+` - identity
+ - `-` - unary minus / reverse sequence
+ - `*` - sign function
+ - `|` - absolute value / length
+ - `.~` - bitwise not
+ - `!` - boolean not
 
 ## Functions
 
@@ -105,6 +138,13 @@ The `if/else` block is written as such:
 Or with an additional else block:
 
     :<cond> { <if-block> }{ <else-block> };
+
+There can also be `elif` blocks - any number of them:
+
+    :<cond> { <if-block> }
+    :<cond> { <elif-block> }
+    ...
+    { <else-block> };
 
 ### Ternary
 

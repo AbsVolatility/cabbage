@@ -10,14 +10,14 @@ if sys.version_info < (3, 0):
 def base(value, base_, alphabet=base_chars):
     value_type = value.type
     if value_type not in ('integer', 'string') or base.type != 'integer' or alphabet.type != 'string':
-        raise CbgTypeError("'value' argument to function 'base' must be of types 'integer' or 'string', not '{}'".format(value.type))
+        raise TypeError("'value' argument to function 'base' must be of types 'integer' or 'string', not '{}'".format(value.type))
     elif base.type != 'integer':
-        raise CbgTypeError("'base_' argument to function 'base' must be of type 'integer', not '{}'".format(base_.type))
+        raise TypeError("'base_' argument to function 'base' must be of type 'integer', not '{}'".format(base_.type))
     elif alphabet.type != 'string':
-        raise CbgTypeError("'alphabet' argument to function 'base' must be of type 'string', not '{}'".format(alphabet.type))
+        raise TypeError("'alphabet' argument to function 'base' must be of type 'string', not '{}'".format(alphabet.type))
     base, alphabet = base_.value, alphabet.value
     if not 2 <= base <= len(alphabet) + 1:
-        raise CbgValueError("'base_' argument to function 'base' must be >= 2 and <= len(alphabet) + 1")
+        raise ValueError("'base_' argument to function 'base' must be >= 2 and <= len(alphabet) + 1")
     chars = alphabet[:base]
     if value_type == 'string':
         value = value.value
@@ -42,7 +42,15 @@ def base(value, base_, alphabet=base_chars):
 def input_(prompt=''):
     return cbgString(input(prompt))
 
-def getval(value):
-    return [i.value for i in value.value] if value.type == 'list' else value.value
+def getval(value, repr_=False):
+    if value.type == 'list':
+        return [getval(i) for i in value.value]
+    elif repr_:
+        if hasattr(value, 'repr_'):
+            return value.repr_
+        else:
+            return repr(value.out)
+    else:
+        return value.out
 
 base, input_ = cbgFunction(base), cbgFunction(input_)
