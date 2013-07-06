@@ -7,11 +7,11 @@ from __future__ import print_function
 from cbg_lexer import lexer
 from cbg_parser import parser
 
-import cbg_builtins
+from cbg_builtins import funcs, types
 
-namespace = {'__builtins__': {'print': print, 'repr': repr}}
+namespace = {'__builtins__': funcs}
 
-namespace['__builtins__'].update((i, getattr(cbg_builtins, i)) for i in dir(cbg_builtins) if not i.startswith('__'))
+namespace['__builtins__'].update(types)
 
 def indent(lst):
     def ind(lst, lvl=0):
@@ -33,22 +33,22 @@ def gen(node, print_expr=False, el=False):
         else:
             return '{} = {}'.format(name, gen(node.value))
     elif node_type == 'print':
-        return 'print(getval({}))'.format(gen(node.value))
+        return '{}.print()'.format(gen(node.value))
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':
-        return 'print(getval({}, repr_=True))'.format(gen(node.value)) if print_expr else 'pass'
+        return '{}.print(repr=True)'.format(gen(node.value)) if print_expr else 'pass'
     elif node_type == 'binary_op':
-        return '{}({}, {})'.format(node.op, gen(node.arg1), gen(node.arg2))
+        return '{}.{}({})'.format(gen(node.arg1), node.op, gen(node.arg2))
     elif node_type == 'unary_op':
-        return '{}({})'.format(node.op, gen(node.arg))
+        return '{}({})'.format(node.op, gen(node.arg)) if node.isfunc else '{}.{}()'.format(gen(node.arg), node.op)
     elif node_type == 'functiondef':
         exec(indent(['def _({}):'.format(', '.join(node.vars)), gen(node.code) + ['return cbgNone()']]), namespace)
-        return 'cbgFunction(_)'
+        return 'func(_)'
     elif node_type == 'functioncall':
-        return '{}.value({})'.format(gen(node.func), gen(node.param_lst))
+        return '{}({})'.format(gen(node.func), gen(node.param_lst))
     elif node_type == 'paramlist':
-        return ', '.join([str(gen(i)) for i in node.value])
+        return ', '.join([str(gen(i)) for i in node.value if str(gen(i))!='none()'])
     elif node_type == 'return':
         return 'return {}'.format(gen(node.value))
     elif node_type == 'break':
@@ -71,11 +71,11 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'block':
         return [gen(i) for i in node.code]
     elif node_type == 'list':
-        return 'cbgList([{}])'.format(', '.join([str(gen(i)) for i in node.value]))
+        return 'list([{}])'.format(', '.join([str(gen(i)) for i in node.value]))
     elif node_type == 'slice':
-        return 'slce({}, {})'.format(gen(node.lst), gen(node.index))
+        return '{}.slce({})'.format(gen(node.lst), gen(node.index))
     elif node_type == 'slce':
-        return 'cbgList([{}, {}, {}])'.format(gen(node.start), gen(node.stop), gen(node.step))
+        return 'list([{}, {}, {}])'.format(gen(node.start), gen(node.stop), gen(node.step))
     else:  # a literal value
         return node
 

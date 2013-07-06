@@ -19,11 +19,8 @@ class Assign(Node):
 def augassign(op, name, value):
     return Assign(name, BinaryOp(op[:-1], Id(name), value))
 
-def unary_augassign(ops, name):
-    unary_ops = Id(name)
-    while ops:
-        unary_ops = UnaryOp(ops.pop(), unary_ops)
-    return Assign(name, unary_ops)
+def raugassign(op, name, value):
+    return Assign(name, BinaryOp(op[:-1], value, Id(name)))
 
 class Id(Node):
     type = 'id'
@@ -41,7 +38,7 @@ class Expression(Node):
 
 class UnaryOp(Node):
     type = 'unary_op'
-    def __init__(self, op, arg):
+    def __init__(self, op, arg, isfunc=False):
         self.op = {'+': 'uplus',
                    '-': 'uminus',
                    '~': 'bwnot',
@@ -49,6 +46,7 @@ class UnaryOp(Node):
                    '|': 'abs',
                    '*': 'sgn'}.get(op, op)
         self.arg = arg
+        self.isfunc = isfunc
     def __repr__(self):
         return '({} {!r})'.format(self.op, self.arg)
 
@@ -59,7 +57,7 @@ class BinaryOp(Node):
                    '-': 'sub',
                    '*': 'mul',
                    '/': 'div',
-                   '^': 'pow_',
+                   '^': 'pow',
                    '%': 'mod',
                    '<': 'lt',
                    '<=': 'le',
@@ -107,7 +105,7 @@ class FunctionDef(Node):
 class FunctionCall(Node):
     type = 'functioncall'
     def __init__(self, func, param_lst):
-        self.func = {'input': 'input_'}.get(func, func)
+        self.func = func
         self.param_lst = param_lst
     def __repr__(self):
         return '{}(*{})'.format(self.func, self.param_lst)

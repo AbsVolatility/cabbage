@@ -1,4 +1,6 @@
-# Documentation for Cabbage v0.5
+# Documentation for Cabbage v0.6
+
+Warning: this document is by no means complete.
 
 ## Table of Contents
 
@@ -45,6 +47,12 @@ Each statment must end in a semicolon (`;`).
 `<op> should be replaced by one of these operators:
 
     +, -, *, /, ^, %, .&, .|, .^
+
+There is also "right augmented assignment", where the syntax is as such:
+
+    <value> <op>> <id>
+
+So for example, `2 ^> i;` is equivalent to `i <- 2^i;`
 
 There is also support for a sort of "unary augmented assignment":
 
@@ -113,7 +121,7 @@ There are currently two builtin functions in Cabbage - `base`, and `input`
 
 `base` can either take a string and convert it from a given base to an integer, or take an integer and convert it to a given base to a string. A custom alphabet can be supplied if you don't want to use the default (the digits 0 - 9 plus all lower-cased letter in order).
 
-`input` simply takes input from standard in.
+`input` simply takes input from standard in, with a given prompt, or the default empty string.
 
 ## Loops and Conditionals
 

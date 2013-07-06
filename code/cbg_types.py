@@ -1,60 +1,360 @@
-class cbgInteger:
+class cbgType:
+    def unary(fn):
+        def err(self):
+            raise TypeError("unary operator '{}' not defined for type '{}'".format(fn(self), self.type))
+        return err
+    def binary(fn):
+        def err(self, other):
+            raise TypeError("binary operator '{}' not defined for types '{}' and '{}'".format(fn(self, other), self.type, other.type))
+        return err
+
+    def print(self, repr=False):
+        print(self.repr if repr else self.out)
+
+    def uplus(self):
+        return self
+    def blnot(self):
+        return cbgBool(not self.value)
+    def eq(self, other):
+        return cbgBool(self.value == other.value)
+    def ne(self, other):
+        return cbgBool(self.value != other.value)
+    def slce(self, index):
+        raise TypeError("'{}' object is not subscriptable".format(self.type))
+    @unary
+    def uminus(self): return '-'
+    @unary
+    def abs(self): return '|'
+    @unary
+    def sgn(self): return '*'
+    @unary
+    def bwnot(self): return '.~'
+    @binary
+    def add(self, other): return '+'
+    @binary
+    def sub(self, other): return '-'
+    @binary
+    def mul(self, other): return '*'
+    @binary
+    def div(self, other): return '/'
+    @binary
+    def pow(self, other): return '^'
+    @binary
+    def mod(self, other): return '%'
+    @binary
+    def bwand(self, other): return '.&'
+    @binary
+    def bwor(self, other): return '.|'
+    @binary
+    def bwxor(self, other): return '.^'
+    @binary
+    def bland(self, other): return '&&'
+    @binary
+    def blor(self, other): return '||'
+    @binary
+    def lt(self, other): return '<'
+    @binary
+    def le(self, other): return '<='
+    @binary
+    def ge(self, other): return '>='
+    @binary
+    def gt(self, other): return '>'
+    @binary
+    def rnge(self, other): return '..'
+
+class cbgInteger(cbgType):
     type = 'integer'
     def __init__(self, value):
-        self.value = int(value)
-        self.out = self.value
+        if hasattr(value, 'type'):
+            if value.type not in ('integer', 'float', 'string', 'bool'):
+                raise TypeError("can't convert type '{}' into integer".format(value.type))
+            elif value.type in ('integer', 'float', 'bool'):
+                self.value = int(value.value)
+            else:  # a string
+                self.value = int(value.out)
+        else:
+            self.value = int(value)
+        self.out = str(self.value)
+        self.repr = self.out
     def __repr__(self):
-        return 'cbgInteger({!r})'.format(self.value)
+        return 'int({!r})'.format(self.value)
 
-class cbgFloat:
+    def uminus(self):
+        return cbgInteger(-self.value)
+    def abs(self):
+        return cbgInteger(self.sgn().value * self.value)
+    def sgn(self):
+        return cbgInteger(1) if self.value > 0 else cbgInteger(-1) if self.value < 0 else cbgInteger(0)
+    def add(self, other):
+        if other.type in ('integer', 'float'):
+            return other.__class__(self.value + other.value)
+        else:
+            super().add(self, other)
+    def sub(self, other):
+        if other.type in ('integer', 'float'):
+            return other.__class__(self.value - other.value)
+        else:
+            super().sub(self, other)
+    def mul(self, other):
+        if other.type in ('integer', 'float', 'string', 'list'):
+            return other.__class__(self.value * other.value)
+        else:
+            super().mul(self, other)
+    def div(self, other):
+        if other.type == 'integer' and self.mod(other).value == 0:
+            return cbgInteger(self.value // other.value)
+        elif other.type in ('integer', 'float'):
+            return cbgFloat(self.value / other.value)
+        else:
+            super().div(self, other)
+    def pow(self, other):
+        if other.type in ('integer', 'float'):
+            return other.__class__(self.value ** other.value)
+        else:
+            super().pow(self, other)
+    def mod(self, other):
+        if other.type in ('integer', 'float'):
+            return other.__class__(self.value % other.value)
+        else:
+            super().mod(self, other)
+    def bwand(self, other):
+        if other.type == 'integer':
+            return cbgInteger(self.value & other.value)
+        else:
+            super().bwand(self, other)
+    def bwor(self, other):
+        if other.type == 'integer':
+            return cbgInteger(self.value | other.value)
+        else:
+            super().bwor(self, other)
+    def bwxor(self, other):
+        if other.type == 'integer':
+            return cbgInteger(self.value ^ other.value)
+        else:
+            super().bwxor(self, other)
+    def bwnot(self):
+        return cbgInteger(~self.value)
+    def lt(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value < other.value)
+        else:
+            super().lt(self, other)
+    def le(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value <= other.value)
+        else:
+            super().le(self, other)
+    def ge(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value >= other.value)
+        else:
+            super().ge(self, other)
+    def gt(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value > other.value)
+        else:
+            super().gt(self, other)
+    def rnge(self, other):
+        if other.type == 'integer':
+            return cbgList([cbgInteger(i) for i in range(self.value, other.value+1)])
+        else:
+            super().rnge(self, other)
+
+class cbgFloat(cbgType):
     type = 'float'
     def __init__(self, value):
-        self.value = float(value)
-        self.out = self.value
+        if hasattr(value, 'type'):
+            if value.type not in ('integer', 'float', 'string', 'bool'):
+                raise TypeError("can't convert type '{}' into float".format(value.type))
+            elif value.type in ('integer', 'float', 'bool'):
+                self.value = float(value.value)
+            else:  # a string
+                self.value = float(value.out)
+        else:
+            self.value = float(value)
+        self.out = str(self.value)
+        self.repr = self.out
     def __repr__(self):
-        return 'cbgFloat({!r})'.format(self.value)
+        return 'float({!r})'.format(self.value)
 
-class cbgBool:
-    type = 'bool'
-    def __init__(self, value):
-        self.value = value
-        self.out = {True: 'true', False: 'false'}[value]
-        self.repr_ = self.out
-    def __repr__(self):
-        return 'cbgBool({!r})'.format(self.value)
+    def uminus(self):
+        return cbgFloat(-self.value)
+    def abs(self):
+        return cbgFloat(self.sgn().value * self.value)
+    def sgn(self):
+        return cbgInteger(1) if self.value > 0 else cbgInteger(-1) if self.value < 0 else cbgInteger(0)
+    def add(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value + other.value)
+        else:
+            super().add(self, other)
+    def sub(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value - other.value)
+        else:
+            super().sub(self, other)
+    def mul(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value * other.value)
+        else:
+            super().mul(self, other)
+    def div(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value / other.value)
+        else:
+            super().div(self, other)
+    def pow(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value ** other.value)
+        else:
+            super().pow(self, other)
+    def mod(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgFloat(self.value % other.value)
+        else:
+            super().mod(self, other)
+    def lt(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value < other.value)
+        else:
+            super().lt(self, other)
+    def le(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value <= other.value)
+        else:
+            super().le(self, other)
+    def ge(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value >= other.value)
+        else:
+            super().ge(self, other)
+    def gt(self, other):
+        if other.type in ('integer', 'float'):
+            return cbgBool(self.value > other.value)
+        else:
+            super().gt(self, other)
 
-class cbgString:
+class cbgString(cbgType):
     type = 'string'
     def __init__(self, value):
-        self.value = list(value)
-        self.out = ''.join(self.value)
+        self.value = list(str(value.out if hasattr(value, 'type') else value))
+    @property
+    def out(self):
+        return ''.join(self.value)
+    @property
+    def repr(self):
+        return repr(self.out)
     def __repr__(self):
-        return 'cbgString({!r})'.format(self.out)
+        return 'str({!r})'.format(self.out)
 
-class cbgList:
+    def uminus(self):
+        return cbgString(self.value[::-1])
+    def abs(self):
+        return cbgInteger(len(self.value))
+    def add(self, other):
+        if other.type == 'string':
+            return cbgString(self.value + other.value)
+        else:
+            super().add(self, other)
+    def mul(self, other):
+        if other.type == 'integer':
+            return cbgString(self.value * other.value)
+        else:
+            super().mul(self, other)
+    def slce(self, index):
+        if index.type == 'integer':
+            return cbgString(self.value[index.value])
+        if index.type == 'list':
+            if not all(i.type in ('integer', 'none') for i in index.value):
+                raise TypeError("slice values must be integers or 'none'")
+            return cbgString(self.value[slice(*[i.value for i in index.value])])
+        else:
+            raise TypeError("invalid index type '{}'".format(index.type))
+
+class cbgList(cbgType):
     type = 'list'
     def __init__(self, value):
-        self.value = list(value)
-        self.out = self.value
+        self.value = list(value.value if hasattr(value, 'type') else value)
+    @property
+    def out(self):
+        return str([i.value for i in self.value])
+    @property
+    def repr(self):
+        return self.out
     def __repr__(self):
-        return 'cbgList({!r})'.format(self.value)
+        return 'list({!r})'.format(self.value)
 
-class cbgFunction:
+    def uminus(self):
+        return cbgList(self.value[::-1])
+    def abs(self):
+        return cbgInteger(len(self.value))
+    def add(self, other):
+        if other.type == 'list':
+            return cbgList(self.value + other.value)
+        else:
+            super().add(self, other)
+    def mul(self, other):
+        if other.type == 'integer':
+            return cbgList(self.value * other.value)
+        else:
+            super().mul(self, other)
+    def slce(self, index):
+        if index.type == 'integer':
+            return self.value[index.value]
+        if index.type == 'list':
+            if not all(i.type in ('integer', 'none') for i in index.value):
+                raise TypeError("slice values must be integers or 'none'")
+            return cbgList(self.value[slice(*[i.value for i in index.value])])
+        else:
+            raise TypeError("invalid index type '{}'".format(index.type))
+
+class cbgFunction(cbgType):
     type = 'function'
     def __init__(self, value):
-        self.value = value
+        if not callable(value):
+            self.value = lambda self: value
+        else:
+            self.value = value.value if hasattr(value, 'type') else value
         self.out = 'a function'
-        self.repr_ = self.out
+        self.repr = self.out
     def __repr__(self):
-        return 'cbgFunction({!r})'.format(self.value)
+        return 'func({!r})'.format(self.value)
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)
 
-class cbgNone:
+class cbgBool(cbgType):
+    type = 'bool'
+    def __init__(self, value):
+        self.value = bool(value.value if hasattr(value, 'type') else value)
+        self.out = {True: 'true', False: 'false'}[value]
+        self.repr = self.out
+    def __repr__(self):
+        return 'bool({!r})'.format(self.value)
+
+    def bland(self, other):
+        if other.type == 'bool':
+            return cbgBool(self.value and other.value)
+        else:
+            super().bland(self, other)
+    def blor(self, other):
+        if other.type == 'bool':
+            return cbgBool(self.value or other.value)
+        else:
+            super().blor(self, other)
+
+class cbgNone(cbgType):
     type = 'none'
     def __init__(self):
         self.value = None
         self.out = 'none'
-        self.repr_ = self.out
+        self.repr = self.out
     def __repr__(self):
-        return 'cbgNone()'
-    def __bool__(self):
-        return False
+        return 'none()'
+
+types = {'int': cbgInteger,
+         'float': cbgFloat,
+         'str': cbgString,
+         'list': cbgList,
+         'func': cbgFunction,
+         'bool': cbgBool,
+         'none': cbgNone}

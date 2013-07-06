@@ -4,8 +4,6 @@
 # Written with PLY
 #-------------------------------------------------------------------------------
 
-from __future__ import print_function
-
 from ply import yacc
 
 from cbg_lexer import tokens
@@ -40,6 +38,7 @@ def p_stmt(p):
     '''stmt : print_stmt
             | assign_stmt
             | augassign_stmt
+            | raugassign_stmt
             | unary_augassign_stmt
             | expression_stmt
             | if_stmt
@@ -62,9 +61,13 @@ def p_augassign(p):
     'augassign_stmt : ID AUGASSIGN expression'
     p[0] = augassign(p[2], p[1], p[3])
 
+def p_raugassign(p):
+    'raugassign_stmt : expression RAUGASSIGN ID'
+    p[0] = raugassign(p[2], p[3], p[1])
+
 def p_unary_augassign(p):
     "unary_augassign_stmt : unary_id '<'"
-    p[0] = unary_augassign(p[1][:-1], p[1][-1])
+    p[0] = Assign(p[1][0], p[1][1])
 
 def p_unary_id(p):
     '''unary_id : ID
@@ -72,7 +75,11 @@ def p_unary_id(p):
                 | '+' unary_id %prec UNARY
                 | '-' unary_id %prec UNARY
                 | '*' unary_id %prec UNARY'''
-    p[0] = [p[1]] + (p[2] if len(p)==3 else [])
+    p[0] = (p[2][0], UnaryOp(p[1], p[2][1])) if len(p)==3 else (p[1], Id(p[1]))
+
+def p_unary_id_type(p):
+    "unary_id : '(' TYPE ')' unary_id %prec UNARY"
+    p[0] = (p[4][0], UnaryOp(p[2], p[4][1], isfunc=True))
 
 def p_if_stmt(p):
     """if_stmt : if_block
@@ -124,6 +131,10 @@ def p_expression_unary(p):
                   | '*' expression %prec UNARY'''
     p[0] = UnaryOp(p[1], p[2])
 
+def p_expression_type_conv(p):
+    "expression : '(' TYPE ')' expression %prec UNARY"
+    p[0] = UnaryOp(p[2], p[4], isfunc=True)
+
 def p_expression_ternary(p):
     "expression : expression '?' expression ':' expression %prec TERNARY"
     p[0] = Ternary(p[1], p[3], p[5])
@@ -148,7 +159,8 @@ def p_expression_parens(p):
     p[0] = p[2]
 
 def p_func_call(p):
-    "expression : ID '(' expression_list ')'"
+    """expression : ID '(' expression_list ')'
+                  | TYPE '(' expression_list ')'"""
     p[0] = FunctionCall(Id(p[1]), ParamList(p[3]))
 
 def p_func_call_lit(p):

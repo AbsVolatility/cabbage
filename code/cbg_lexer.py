@@ -4,16 +4,21 @@
 # Written with PLY
 #-------------------------------------------------------------------------------
 
-from __future__ import print_function
-
 from ply import lex
 
 reserved = {'true': 'TRUE',
             'false': 'FALSE',
-            'none': 'NONE'}
+            'none': 'NONE',
+            'int': 'TYPE',
+            'float': 'TYPE',
+            'str': 'TYPE',
+            'list': 'TYPE',
+            'func': 'TYPE',
+            'bool': 'TYPE'}
 
 tokens = ['ASSIGN',
           'AUGASSIGN',
+          'RAUGASSIGN',
           'PRINT',
           'BITWISE',
           'BOOLEAN',
@@ -23,12 +28,13 @@ tokens = ['ASSIGN',
           'ID',
           'FLOAT',
           'INTEGER',
-          'STRING'] + list(reserved.values())
+          'STRING'] + ['TRUE', 'FALSE', 'NONE', 'TYPE']
 
 literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~', '<')
 
 t_ASSIGN = r'<-'
 t_AUGASSIGN = r'(\+|-|\*|/|\^|%|\.(&|\||\^))<'
+t_RAUGASSIGN = r'(\+|-|\*|/|\^|%|\.(&|\||\^))>'
 t_PRINT = r'\\@/'
 t_BITWISE = r'\.(&|\||\^)'
 t_BOOLEAN = r'&&|\|\|'
@@ -42,7 +48,7 @@ def t_ID(t):
     if t.type != 'ID':
         t.value = {'true': True,
                    'false': False,
-                   'none': None}[t.value]
+                   'none': None}.get(t.value, t.value)
     return t
 
 def t_FLOAT(t):
