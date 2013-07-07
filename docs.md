@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.6
+# Documentation for Cabbage v0.7
 
 Warning: this document is by no means complete.
 
@@ -23,13 +23,18 @@ Lists are contained inside square brackets (`[]`) and elements are separated by 
 
 Functions can be defined as such:
 
-    {<params>: <stmts>};
+    +@ <name> : <params>
+    { <stmts> };
 
 To set a return value for the function (other than the default `None`), you add this in the function definition where you want it to return:
 
     ~ <return-value>;
 
 Note that the function stops execution once it hits a return statement. There can however be multiple return statements, usually used with conditional blocks.
+
+Lambdas are simply one-statement functions. They return an expression evaluated given some parameters. The syntax is this:
+
+    {<params>: <expression>};
 
 ---
 Each statment must end in a semicolon (`;`).
@@ -96,6 +101,12 @@ The range operator can take two integers and return a list of all integers betwe
 
     a .. b
 
+### Map
+
+This is the map function:
+
+    <function> # <list>
+
 ### Unary
 
 These are the unary operators:
@@ -153,6 +164,13 @@ There can also be `elif` blocks - any number of them:
     :<cond> { <elif-block> }
     ...
     { <else-block> };
+
+### Switch/Case
+
+    -: <expr>
+    : <val> { <block> }
+    ...
+    { <block> };  # default block
 
 ### Ternary
 

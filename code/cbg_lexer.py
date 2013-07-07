@@ -19,7 +19,9 @@ reserved = {'true': 'TRUE',
 tokens = ['ASSIGN',
           'AUGASSIGN',
           'RAUGASSIGN',
+          'FUNCDEF',
           'PRINT',
+          'SWITCH',
           'BITWISE',
           'BOOLEAN',
           'UNARY',
@@ -30,15 +32,17 @@ tokens = ['ASSIGN',
           'INTEGER',
           'STRING'] + ['TRUE', 'FALSE', 'NONE', 'TYPE']
 
-literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~', '<')
+literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~', '<', '#')
 
 t_ASSIGN = r'<-'
 t_AUGASSIGN = r'(\+|-|\*|/|\^|%|\.(&|\||\^))<'
 t_RAUGASSIGN = r'(\+|-|\*|/|\^|%|\.(&|\||\^))>'
+t_FUNCDEF = r'\+@'
 t_PRINT = r'\\@/'
+t_SWITCH = r'-:'
 t_BITWISE = r'\.(&|\||\^)'
 t_BOOLEAN = r'&&|\|\|'
-t_UNARY = r'\.~|!(?!=)|\|'
+t_UNARY = r'\.~|!(?!=)|\||`'
 t_RANGE = r'\.\.'
 t_COMPARISON = r'<=|>=|<(?!-|[ ]*;)|>|=|!='
 

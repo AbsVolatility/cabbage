@@ -14,12 +14,14 @@ precedence = [('nonassoc', 'COMPARISON', 'TERNARY'),
               ('left', 'BOOLEAN'),
               ('left', 'BITWISE'),
               ('left', '+', '-'),
-              ('nonassoc', 'RANGE'),
+              ('right', 'RANGE'),
               ('left', '%'),
               ('left', '*', '/'),
               ('right', '^'),
+              ('right', '#', 'FOLD'),
               ('left', 'SLICE'),
-              ('right', 'UNARY')]
+              ('right', 'UNARY'),
+              ('left', 'FUNCCALL')]
 
 def p_s(p):
     's : stmt_list'
@@ -42,6 +44,7 @@ def p_stmt(p):
             | unary_augassign_stmt
             | expression_stmt
             | if_stmt
+            | switch_case
             | for_loop
             | while_loop
             | return_stmt
@@ -59,11 +62,11 @@ def p_assign(p):
 
 def p_augassign(p):
     'augassign_stmt : ID AUGASSIGN expression'
-    p[0] = augassign(p[2], p[1], p[3])
+    p[0] = Assign(p[1], BinaryOp(p[2][:-1], Id(p[1]), p[3]))
 
 def p_raugassign(p):
     'raugassign_stmt : expression RAUGASSIGN ID'
-    p[0] = raugassign(p[2], p[3], p[1])
+    p[0] = Assign(p[3], BinaryOp(p[2][:-1], p[1], Id(p[3])))
 
 def p_unary_augassign(p):
     "unary_augassign_stmt : unary_id '<'"
@@ -90,6 +93,15 @@ def p_if_block(p):
     """if_block : ':' expression '{' stmt_list '}'
                 | ':' expression '{' stmt_list '}' if_block"""
     p[0] = [If(p[2], Block(p[4]))] + (p[6] if len(p)==7 else [])
+
+def p_switch_case(p):
+    "switch_case : SWITCH expression cases '{' stmt_list '}'"
+    p[0] = switchcase(p[2], p[3], Block(p[5]))
+
+def p_cases(p):
+    """cases : ':' expression '{' stmt_list '}'
+             | ':' expression '{' stmt_list '}' cases"""
+    p[0] = [(p[2], Block(p[4]))] + (p[6] if len(p)==7 else [])
 
 def p_for_loop(p):
     "for_loop : '@' ID ':' expression '{' stmt_list '}'"
@@ -118,6 +130,7 @@ def p_expression_bin_op(p):
                   | expression '/' expression
                   | expression '^' expression
                   | expression '%' expression
+                  | expression '#' expression
                   | expression COMPARISON expression
                   | expression BITWISE expression
                   | expression BOOLEAN expression
@@ -130,6 +143,17 @@ def p_expression_unary(p):
                   | '-' expression %prec UNARY
                   | '*' expression %prec UNARY'''
     p[0] = UnaryOp(p[1], p[2])
+
+def p_fold(p):
+    '''expression : '+' '/' expression %prec FOLD
+                  | '-' '/' expression %prec FOLD
+                  | '*' '/' expression %prec FOLD
+                  | '/' '/' expression %prec FOLD
+                  | '^' '/' expression %prec FOLD
+                  | '%' '/' expression %prec FOLD
+                  | BITWISE '/' expression %prec FOLD
+                  | BOOLEAN '/' expression %prec FOLD'''
+    p[0] = Fold(p[1], p[3])
 
 def p_expression_type_conv(p):
     "expression : '(' TYPE ')' expression %prec UNARY"
@@ -147,24 +171,23 @@ def p_expression_slice(p):
 def p_slice(p):
     '''slice : op_expr ':' op_expr
              | op_expr ':' op_expr ':' op_expr'''
-    p[0] = Slce(p[1], p[3] if len(p)>=4 else cbgNone(), p[5] if len(p)==6 else cbgNone())
+    p[0] = Slce(p[1], p[3] if len(p)>=4 else none, p[5] if len(p)==6 else none)
 
 def p_op_expr(p):
     '''op_expr : empty
                | expression'''
-    p[0] = p[1]
+    p[0] = p[1] or none
 
 def p_expression_parens(p):
     "expression : '(' expression ')'"
     p[0] = p[2]
 
 def p_func_call(p):
-    """expression : ID '(' expression_list ')'
-                  | TYPE '(' expression_list ')'"""
+    "expression : TYPE '(' expression_list ')'"
     p[0] = FunctionCall(Id(p[1]), ParamList(p[3]))
 
 def p_func_call_lit(p):
-    "expression : literal '(' expression_list ')'"
+    "expression : expression '(' expression_list ')' %prec FUNCCALL"
     p[0] = FunctionCall(p[1], ParamList(p[3]))
 
 def p_expression_literal(p):
@@ -181,9 +204,13 @@ def p_expression_list(p):
                        | expression ',' expression_list'''
     p[0] = ([p[1]] + p[3]) if len(p)==4 else ([p[1]] if p[1] else [])
 
+def p_lambda_def(p):
+    "literal : '{' id_list ':' expression '}'"
+    p[0] = LambdaDef(p[2], p[4])
+
 def p_func_def(p):
-    "literal : '{' id_list ':' stmt_list '}'"
-    p[0] = FunctionDef(p[2], Block(p[4]))
+    "stmt : FUNCDEF ID ':' id_list '{' stmt_list '}'"
+    p[0] = FunctionDef(p[2], p[4], Block(p[6]))
 
 def p_id_list(p):
     '''id_list : empty
@@ -206,11 +233,11 @@ def p_literal_string(p):
 def p_literal_bool(p):
     '''literal : TRUE
                | FALSE'''
-    p[0] = cbgBool(p[1])
+    p[0] = [false, true][p[1]]
 
 def p_literal_none(p):
     'literal : NONE'
-    p[0] = cbgNone()
+    p[0] = none
 
 def p_literal_other(p):
     '''literal : list'''
@@ -222,7 +249,6 @@ def p_list(p):
 
 def p_empty(p):
     'empty :'
-    p[0] = cbgNone()
 
 def p_error(p):
     raise SyntaxError('invalid syntax')

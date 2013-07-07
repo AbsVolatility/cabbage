@@ -23,7 +23,7 @@ while True:
             print('parse tree:', parsed)
             print()
         code = [gen(i, print_expr=True) for i in parsed.code]
-        code = '\n'.join([indent(i) if isinstance(i, list) else i for i in code])
+        code = indent(code)
         if debug:
             print('code:\n' + code)
             print('\n---\n')

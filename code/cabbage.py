@@ -38,17 +38,20 @@ def gen(node, print_expr=False, el=False):
         return node.name
     elif node_type == 'expression':
         return '{}.print(repr=True)'.format(gen(node.value)) if print_expr else 'pass'
+    elif node_type == 'fold':
+        return '{}.fold({!r})'.format(gen(node.lst), node.op)
     elif node_type == 'binary_op':
         return '{}.{}({})'.format(gen(node.arg1), node.op, gen(node.arg2))
     elif node_type == 'unary_op':
         return '{}({})'.format(node.op, gen(node.arg)) if node.isfunc else '{}.{}()'.format(gen(node.arg), node.op)
+    elif node_type == 'lambdadef':
+        return 'func(lambda {}: {})'.format(', '.join(node.vars), gen(node.code))
     elif node_type == 'functiondef':
-        exec(indent(['def _({}):'.format(', '.join(node.vars)), gen(node.code) + ['return cbgNone()']]), namespace)
-        return 'func(_)'
+        return indent(['def {}({}):'.format(node.name, ', '.join(node.vars)), gen(node.code) + ['return none'], '{0} = func({0})'.format(node.name)])
     elif node_type == 'functioncall':
         return '{}({})'.format(gen(node.func), gen(node.param_lst))
     elif node_type == 'paramlist':
-        return ', '.join([str(gen(i)) for i in node.value if str(gen(i))!='none()'])
+        return ', '.join([str(gen(i)) for i in node.value])
     elif node_type == 'return':
         return 'return {}'.format(gen(node.value))
     elif node_type == 'break':
@@ -66,8 +69,6 @@ def gen(node, print_expr=False, el=False):
         return indent(['for {} in {}.value:'.format(node.id, gen(node.lst)), gen(node.code)])
     elif node_type == 'while':
         return indent(['while {}.value:'.format(gen(node.cond)), gen(node.code)])
-    elif node_type == 'dowhile':
-        return indent(['while True:', gen(node.code) + ['if {}.value:'.format(node.cond), ['break']]])
     elif node_type == 'block':
         return [gen(i) for i in node.code]
     elif node_type == 'list':

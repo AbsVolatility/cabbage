@@ -1,8 +1,8 @@
-collatz <- { i:
-             seq <- [i];
-             @ i!=1
-               { i <- i%2=0 ? i/2 : 3*i+1;
-                 seq +< [i]; };
-             ~ seq; };
++@ collatz : i
+  { seq <- [i];
+    @ i!=1
+      { i <- i%2=0 ? i/2 : 3*i+1;
+        seq +< [i]; };
+    ~ seq; };
 
 \@/ collatz(17);

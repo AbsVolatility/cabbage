@@ -16,12 +16,6 @@ class Assign(Node):
     def __repr__(self):
         return 'Assign({}, {!r})'.format(self.name, self.value)
 
-def augassign(op, name, value):
-    return Assign(name, BinaryOp(op[:-1], Id(name), value))
-
-def raugassign(op, name, value):
-    return Assign(name, BinaryOp(op[:-1], value, Id(name)))
-
 class Id(Node):
     type = 'id'
     def __init__(self, name):
@@ -44,7 +38,8 @@ class UnaryOp(Node):
                    '~': 'bwnot',
                    '!': 'blnot',
                    '|': 'abs',
-                   '*': 'sgn'}.get(op, op)
+                   '*': 'sgn',
+                   '`': 'rpr'}.get(op, op)
         self.arg = arg
         self.isfunc = isfunc
     def __repr__(self):
@@ -59,6 +54,7 @@ class BinaryOp(Node):
                    '/': 'div',
                    '^': 'pow',
                    '%': 'mod',
+                   '#': 'map',
                    '<': 'lt',
                    '<=': 'le',
                    '=': 'eq',
@@ -77,6 +73,24 @@ class BinaryOp(Node):
     def __repr__(self):
         return '({!r} {} {!r})'.format(self.arg1, self.op, self.arg2)
 
+class Fold(Node):
+    type = 'fold'
+    def __init__(self, op, lst):
+        self.op = {'+': 'add',
+                   '-': 'sub',
+                   '*': 'mul',
+                   '/': 'div',
+                   '^': 'pow',
+                   '%': 'mod',
+                   '.&': 'bwand',
+                   '.|': 'bwor',
+                   '.^': 'bwxor',
+                   '&': 'bland',
+                   '|': 'blor'}.get(op, op)
+        self.lst = lst
+    def __repr__(self):
+        return 'Fold({!r}, {!r})'.format(self.op, self.lst)
+
 class Slice(Node):
     type = 'slice'
     def __init__(self, lst, index):
@@ -94,13 +108,22 @@ class Slce(Node):
     def __repr__(self):
         return 'Slce({!r}, {!r}, {!r})'.format(self.start, self.stop, self.step)
 
-class FunctionDef(Node):
-    type = 'functiondef'
+class LambdaDef(Node):
+    type = 'lambdadef'
     def __init__(self, vars, code):
         self.vars = vars
         self.code = code
     def __repr__(self):
-        return 'Function({!r}, {!r})'.format(self.vars, self.code)
+        return 'Lambda({!r}, {!r})'.format(self.vars, self.code)
+
+class FunctionDef(Node):
+    type = 'functiondef'
+    def __init__(self, name, vars, code):
+        self.name = name
+        self.vars = vars
+        self.code = code
+    def __repr__(self):
+        return 'Function({!r}, {!r}, {!r})'.format(self.name, self.vars, self.code)
 
 class FunctionCall(Node):
     type = 'functioncall'
@@ -139,6 +162,9 @@ class Ifs(Node):
         self.else_block = else_block
     def __repr__(self):
         return 'Ifs({!r}, {!r})'.format(self.if_blocks, self.else_block)
+
+def switchcase(expr, cases, default):
+    return Ifs([If(BinaryOp('=', expr, val), code) for val, code in cases], default)
 
 class Ternary(Node):
     type = 'ternary'

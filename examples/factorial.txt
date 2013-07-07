@@ -1,0 +1,7 @@
++@ factorial_recursive : i
+  { ~ i=1 ? 1 : (f(i-1) * i); };
++@ factorial_product : i
+  { ~ */(1..i); };
+
+\@/ factorial_recursive(10);
+\@/ factorial_product(10);
