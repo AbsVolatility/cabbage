@@ -21,6 +21,10 @@ Lists are contained inside square brackets (`[]`) and elements are separated by 
     <sequence>[<index>]
     <sequence>[<start>:<stop>:<step>]
 
+List comprehensions are written like so:
+
+    [ <expr> | <id> <- <list> (, <id> <- <list>)* (: <cond>)? ]
+
 Functions can be defined as such:
 
     +@ <name> : <params>

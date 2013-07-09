@@ -203,3 +203,13 @@ class Block(Node):
         self.code = code
     def __repr__(self):
         return 'Block({})'.format(self.code)
+
+class ListComp(Node):
+    type = 'listcomp'
+    def __init__(self, expr, lists, guard):
+        self.expr = expr
+        self.lists = [(node.name, node.value) for node in lists]
+        self.guard = guard
+    def __repr__(self):
+        return 'ListComp({!r}, {!r}, {!r})'.format(self.expr, self.lists, self.guard)
+        

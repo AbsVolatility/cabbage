@@ -77,7 +77,8 @@ def p_unary_id(p):
                 | UNARY unary_id
                 | '+' unary_id %prec UNARY
                 | '-' unary_id %prec UNARY
-                | '*' unary_id %prec UNARY'''
+                | '*' unary_id %prec UNARY
+                | '|' unary_id %prec UNARY'''
     p[0] = (p[2][0], UnaryOp(p[1], p[2][1])) if len(p)==3 else (p[1], Id(p[1]))
 
 def p_unary_id_type(p):
@@ -141,7 +142,8 @@ def p_expression_unary(p):
     '''expression : UNARY expression
                   | '+' expression %prec UNARY
                   | '-' expression %prec UNARY
-                  | '*' expression %prec UNARY'''
+                  | '*' expression %prec UNARY
+                  | '|' expression %prec UNARY'''
     p[0] = UnaryOp(p[1], p[2])
 
 def p_fold(p):
@@ -240,12 +242,27 @@ def p_literal_none(p):
     p[0] = none
 
 def p_literal_other(p):
-    '''literal : list'''
+    '''literal : list
+               | set'''
     p[0] = p[1]
 
 def p_list(p):
     "list : '[' expression_list ']'"
     p[0] = cbgList(p[2])
+
+def p_set(p):
+    "set : '{' expression_list '}'"
+    p[0] = cbgSet(p[2])
+
+def p_list_comp(p):
+    """list : '[' expression '|' asgn_list ']'
+            | '[' expression '|' asgn_list ':' expression ']'"""
+    p[0] = ListComp(p[2], p[4], p[6] if len(p)==8 else None)
+
+def p_asgn_list(p):
+    '''asgn_list : assign_stmt
+                 | assign_stmt ',' asgn_list'''
+    p[0] = [p[1]] + (p[3] if len(p)==4 else [])
 
 def p_empty(p):
     'empty :'

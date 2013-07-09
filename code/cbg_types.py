@@ -280,6 +280,8 @@ class cbgList(cbgType):
     def __init__(self, value):
         if hasattr(value, 'type') and value.type not in ('string', 'list'):
             self.value = [value]
+        elif hasattr(value, 'value'):
+            self.value = list(value.value)
         else:
             self.value = list(value)
     @property
@@ -319,6 +321,27 @@ class cbgList(cbgType):
             return cbgList(self.value[slice(*[i.value for i in index.value])])
         else:
             raise TypeError("invalid index type '{}'".format(index.type))
+
+class cbgSet(cbgType):
+    type = 'set'
+    def __init__(self, value):
+        if hasattr(value, 'type') and value.type not in ('list', 'set'):
+            self.value = {value}
+        elif hasattr(value, 'value'):
+            self.value = set(value.value)
+        else:
+            self.value = set(value)
+    @property
+    def out(self):
+        return '{' + ', '.join([i.out for i in sorted(self.value, key=lambda i:i.value)]) + '}'
+    @property
+    def repr(self):
+        return self.out
+    def __repr__(self):
+        return 'set({!r})'.format(self.value)
+
+    def abs(self):
+        return cbgInteger(len(self.value))
 
 class cbgFunction(cbgType):
     type = 'function'
@@ -388,6 +411,7 @@ types = {'int': cbgInteger,
          'float': cbgFloat,
          'str': cbgString,
          'list': cbgList,
+         'set': cbgSet,
          'func': cbgFunction,
          'bool': cbgbool,
          'true': true,

@@ -73,10 +73,14 @@ def gen(node, print_expr=False, el=False):
         return [gen(i) for i in node.code]
     elif node_type == 'list':
         return 'list([{}])'.format(', '.join([str(gen(i)) for i in node.value]))
+    elif node_type == 'set':
+        return 'set([{}])'.format(', '.join([str(gen(i)) for i in node.value]))
     elif node_type == 'slice':
         return '{}.slce({})'.format(gen(node.lst), gen(node.index))
     elif node_type == 'slce':
         return 'list([{}, {}, {}])'.format(gen(node.start), gen(node.stop), gen(node.step))
+    elif node_type == 'listcomp':
+        return 'list([{} {} if {}.value])'.format(gen(node.expr), ' '.join('for {} in {}.value'.format(id, gen(lst)) for id, lst in node.lists), 'True' if node.guard is None else gen(node.guard))
     else:  # a literal value
         return node
 
