@@ -65,8 +65,8 @@ class BinaryOp(Node):
                    '.|': 'bwor',
                    '.^': 'bwxor',
                    '~': 'bwnot',
-                   '&': 'bland',
-                   '|': 'blor',
+                   '&&': 'bland',
+                   '||': 'blor',
                    '..': 'rnge'}.get(op, op)
         self.arg1 = arg1
         self.arg2 = arg2

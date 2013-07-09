@@ -1,13 +1,13 @@
 # Cabbage
 
-Cabbage is an esoteric, functional (and still developing) language.
+Cabbage is an esoteric, object-oriented (and still developing) language.
 This implementation is written in Python 3.3 with the help of [PLY](http://www.dabeaz.com/ply/).
 
 ## Esoteric?
 
-An [esoteric programming language](http://esolangs.org/wiki/Esoteric_programming_language) is "designed to experiment with weird ideas, to be hard to program in, or as a joke, rather than for practical use". This particular esoteric language (esolang for short) has been designed to experiment with "cabbage-oriented programming".
+An [esoteric programming language](http://esolangs.org/wiki/Esoteric_programming_language) (esolang for short) is "designed to experiment with weird ideas, to be hard to program in, or as a joke, rather than for practical use". This particular esolang experiments with mixing a variety of contructs from various other languages, as well as some original ones, to achieve a powerful language.
 
-(Yeah, we ditched the cabbage-oriented idea, and went for functional instead)
+(Yeah, we ditched the cabbage-oriented idea, and went for OOP instead)
 
 ## Development
 

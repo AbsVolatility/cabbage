@@ -39,4 +39,4 @@ def base(value, bse, alphabet=cbgString('0123456789abcdefghijklmnopqrstuvwxyz'))
 def input_(prompt=cbgString('')):
     return cbgString(input(prompt.out))
 
-funcs = {'base': cbgFunction(base), 'input': cbgFunction(input_)}
+funcs = {'base': cbgFunction('base', base), 'input': cbgFunction('input', input_)}

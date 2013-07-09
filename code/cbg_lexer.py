@@ -6,31 +6,23 @@
 
 from ply import lex
 
-reserved = {'true': 'TRUE',
-            'false': 'FALSE',
+reserved = {'true': 'BOOL', 'false': 'BOOL',
             'none': 'NONE',
-            'int': 'TYPE',
-            'float': 'TYPE',
-            'str': 'TYPE',
-            'list': 'TYPE',
+            'int': 'TYPE', 'float': 'TYPE',
+            'str': 'TYPE', 'list': 'TYPE', 'tuple': 'TYPE', 'set': 'TYPE',
             'func': 'TYPE',
             'bool': 'TYPE'}
 
-tokens = ['ASSIGN',
-          'AUGASSIGN',
-          'RAUGASSIGN',
+tokens = ['ASSIGN', 'AUGASSIGN', 'RAUGASSIGN',
           'FUNCDEF',
           'PRINT',
           'SWITCH',
-          'BITWISE',
-          'BOOLEAN',
+          'BITWISE', 'BOOLEAN',
           'UNARY',
           'RANGE',
           'COMPARISON',
           'ID',
-          'FLOAT',
-          'INTEGER',
-          'STRING'] + ['TRUE', 'FALSE', 'NONE', 'TYPE']
+          'FLOAT', 'INTEGER', 'STRING'] + ['BOOL', 'NONE', 'TYPE']
 
 literals = (',', '+', '-', '*', '/', '^', '%', '(', ')', '[', ']', ':', '{', '}', '?', ';', '@', '~', '<', '#', '|')
 

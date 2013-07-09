@@ -19,9 +19,8 @@ precedence = [('nonassoc', 'COMPARISON', 'TERNARY'),
               ('left', '*', '/'),
               ('right', '^'),
               ('right', '#', 'FOLD'),
-              ('left', 'SLICE'),
               ('right', 'UNARY'),
-              ('left', 'FUNCCALL')]
+              ('left', 'FUNCCALL', 'SLICE')]
 
 def p_s(p):
     's : stmt_list'
@@ -233,9 +232,8 @@ def p_literal_string(p):
     p[0] = cbgString(p[1])
 
 def p_literal_bool(p):
-    '''literal : TRUE
-               | FALSE'''
-    p[0] = [false, true][p[1]]
+    'literal : BOOL'
+    p[0] = true if p[1] else false
 
 def p_literal_none(p):
     'literal : NONE'
@@ -243,12 +241,18 @@ def p_literal_none(p):
 
 def p_literal_other(p):
     '''literal : list
+               | tuple
                | set'''
     p[0] = p[1]
 
 def p_list(p):
     "list : '[' expression_list ']'"
     p[0] = cbgList(p[2])
+
+def p_tuple(p):
+    """tuple : '(' empty ')'
+             | '(' expression ',' expression_list ')'"""
+    p[0] = cbgTuple([p[2]]+p[4] if len(p)==6 else ())
 
 def p_set(p):
     "set : '{' expression_list '}'"
