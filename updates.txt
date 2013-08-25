@@ -1,0 +1,104 @@
+v0.2.4
+------
+ - Added switch/case
+ - Made `true`, `false` and `none` singletons
+ - Added map function - `#`
+ - Added fold/reduce function - '/'
+ - Introduced proper functions
+  - Lambdas must be only one expression
+ - Implemented list comprehensions
+ - Implemented Cartesian product
+ - Added tuple type
+ - Boolean `&&` and `||` operators available for all types
+  - Short circuits
+ - Added index assignment
+ - Added `type` function
+
+v0.2.3
+------
+ - Added augmented assignment
+  - +, -, *, /, ^, %, .&, .|, .^
+ - Fixed output bug with nested lists
+ - Add unary augmented assignment
+  - eg. `-a<;` is the same as `a <- -a;`
+ - Changed boolean operators
+  - & -> &&
+  - | -> ||
+ - Added more unary operators
+  - `|` - absolute value / length
+  - `*` - sign function
+  - `-` can also mean "reverse sequence"
+  - `+` changed to identity function
+ - Changed True, False and None to true, false and none respectively
+ - Changed operators to class method rather than functions
+ - Added support for typecasting
+ - Added '`' unary function
+  - Returns the string representation of object
+
+v0.2.2
+------
+ - Added support for user-defined functions
+ - Removed having to initialize variables
+  - No `+@` syntax anymore
+ - Changed assignment operator to `<-`
+ - Changed bitwise not to `.~`
+ - Added sequence indexing/slicing
+ - Added if/elif/else support
+ - Added support for direct input of True, False and None
+ - Added error handling
+
+v0.2.1
+------
+ - Added if/else block
+ - Added ternary expressions
+  - <cond> ? <if> : <else>
+ - Added looping constructs
+  - for
+  - while
+ - Added modulus `%` operator
+
+v0.2.0
+------
+ - Merged all modes into one, removed mode system
+ - Implemented a type system
+ - Added support for != comparison
+ - Added support for Python 2
+ - Separated interpreter from code executer
+ - Added debug option for interpreter
+ - Added support for addition and repetition of strings
+ - Added bitwise operations
+  - &, |, ^, ~
+ - Added power operator (a ** b)
+ - Changed comparison operators
+ - Added boolean operations
+  - and, or, not
+ - Added a range operator
+  - Only works with integers
+
+v0.1.1
+------
+ - Renamed mode 'follow' to 'support'
+ - Added a third, default mode - 'full support'
+ - Added comparison operators
+  - <, <=, ==, >=, >
+  - Only works with numbers
+  - Chaining not supported
+ - Uses Python's boolean type
+ - Added support for lists
+  - Indexing not yet supported
+ - Added a builtin function 'base'
+  - In 'rebel' mode, can convert strings from base 2 - 37 to an integer
+   - Can only use digits + lowercase letters as alphabet
+  - In 'support' mode, can additionally provide a custom alphabet
+  - In 'full' mode (called '_'), also supports conversion from integers
+
+v0.1.0
+------
+ - Has basic support for integers, floats and strings
+  - Floats are only available in 'support' mode (intentional)
+ - Has support for the basic arithmetic operators
+  - +, -, *, /
+  - Only works with numbers
+ - Has basic support for variables
+ - Has two modes - 'follow' and 'rebel'
+ - Has support for printing

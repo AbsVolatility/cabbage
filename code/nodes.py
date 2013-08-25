@@ -16,6 +16,15 @@ class Assign(Node):
     def __repr__(self):
         return 'Assign({}, {!r})'.format(self.name, self.value)
 
+class IdxAssign(Node):
+    type = 'idxassign'
+    def __init__(self, lst, slce, value):
+        self.lst = lst
+        self.slce = slce
+        self.value = value
+    def __repr__(self):
+        return 'IdxAssign({!r}, {!r}, {!r})'.format(self.lst, self.slce, self.value)
+
 class Id(Node):
     type = 'id'
     def __init__(self, name):
@@ -110,17 +119,17 @@ class Slce(Node):
 
 class LambdaDef(Node):
     type = 'lambdadef'
-    def __init__(self, vars, code):
-        self.vars = vars
+    def __init__(self, var_lst, code):
+        self.var_lst = var_lst
         self.code = code
     def __repr__(self):
         return 'Lambda({!r}, {!r})'.format(self.vars, self.code)
 
 class FunctionDef(Node):
     type = 'functiondef'
-    def __init__(self, name, vars, code):
+    def __init__(self, name, var_lst, code):
         self.name = name
-        self.vars = vars
+        self.var_lst = var_lst
         self.code = code
     def __repr__(self):
         return 'Function({!r}, {!r}, {!r})'.format(self.name, self.vars, self.code)
@@ -177,8 +186,8 @@ class Ternary(Node):
 
 class For(Node):
     type = 'for'
-    def __init__(self, id, lst, code):
-        self.id = id
+    def __init__(self, var, lst, code):
+        self.var = var
         self.lst = lst
         self.code = code
     def __repr__(self):
@@ -212,4 +221,8 @@ class ListComp(Node):
         self.guard = guard
     def __repr__(self):
         return 'ListComp({!r}, {!r}, {!r})'.format(self.expr, self.lists, self.guard)
-        
+
+class NoOp(Node):
+    type = 'noop'
+    def __repr__(self):
+        return 'NoOp'

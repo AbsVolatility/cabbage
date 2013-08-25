@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.7
+# Documentation for Cabbage v0.2.4
 
 Warning: this document is by no means complete.
 
@@ -132,11 +132,13 @@ The `<param_list>` is a list of values separated by commas (`,`).
 
 ### Builtins
 
-There are currently two builtin functions in Cabbage - `base`, and `input`
+There are currently three builtin functions in Cabbage - `base`, `input` and `type`
 
 `base` can either take a string and convert it from a given base to an integer, or take an integer and convert it to a given base to a string. A custom alphabet can be supplied if you don't want to use the default (the digits 0 - 9 plus all lower-cased letter in order).
 
 `input` simply takes input from standard in, with a given prompt, or the default empty string.
+
+`type` determines the type of an object.
 
 ## Loops and Conditionals
 

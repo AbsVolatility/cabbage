@@ -9,8 +9,9 @@ from cbg_parser import parser
 
 from cbg_builtins import funcs, types
 
-namespace = {'__builtins__': funcs}
+namespace = {'__builtins__': {}}
 
+namespace['__builtins__'].update(funcs)
 namespace['__builtins__'].update(types)
 
 def indent(lst):
@@ -32,12 +33,14 @@ def gen(node, print_expr=False, el=False):
             raise NameError("Can't assign to '__builtins__'")
         else:
             return '{} = {}'.format(name, gen(node.value))
+    if node_type == 'idxassign':
+        return '{}.setslce({}, {})'.format(gen(node.lst), gen(node.slce), gen(node.value))
     elif node_type == 'print':
-        return '{}.print()'.format(gen(node.value))
+        return '{}.display()'.format(gen(node.value))
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':
-        return '{}.print(repr=True)'.format(gen(node.value)) if print_expr else 'pass'
+        return '{}.display(rout=True)'.format(gen(node.value)) if print_expr else 'pass'
     elif node_type == 'fold':
         return '{}.fold({!r})'.format(gen(node.lst), node.op)
     elif node_type == 'binary_op':
@@ -45,9 +48,9 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'unary_op':
         return '{}({})'.format(node.op, gen(node.arg)) if node.isfunc else '{}.{}()'.format(gen(node.arg), node.op)
     elif node_type == 'lambdadef':
-        return 'func(lambda {}: {})'.format(', '.join(node.vars), gen(node.code))
+        return "func('lambda', lambda {}: {})".format(', '.join(node.var_lst), gen(node.code))
     elif node_type == 'functiondef':
-        return indent(['def {}({}):'.format(node.name, ', '.join(node.vars)), gen(node.code) + ['return none'], "{0} = func('{0}', {0})".format(node.name)])
+        return indent(['def {}({}):'.format(node.name, ', '.join(node.var_lst)), gen(node.code) + ['return none'], "{0} = func('{0}', {0})".format(node.name)])
     elif node_type == 'functioncall':
         return '{}({})'.format(gen(node.func), gen(node.param_lst))
     elif node_type == 'paramlist':
@@ -66,7 +69,7 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'ternary':
         return '(({}) if ({}.value) else ({}))'.format(gen(node.if_block), gen(node.cond), gen(node.else_block))
     elif node_type == 'for':
-        return indent(['for {} in {}.value:'.format(node.id, gen(node.lst)), gen(node.code)])
+        return indent(['for {} in {}.value:'.format(node.var, gen(node.lst)), gen(node.code)])
     elif node_type == 'while':
         return indent(['while {}.value:'.format(gen(node.cond)), gen(node.code)])
     elif node_type == 'block':
@@ -78,7 +81,9 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'slce':
         return 'list([{}, {}, {}])'.format(gen(node.start), gen(node.stop), gen(node.step))
     elif node_type == 'listcomp':
-        return 'list([{} {} if {}.value])'.format(gen(node.expr), ' '.join('for {} in {}.value'.format(id, gen(lst)) for id, lst in node.lists), 'true' if node.guard is None else gen(node.guard))
+        return 'list([{} {} if {}.value])'.format(gen(node.expr), ' '.join('for {} in {}.value'.format(var, gen(lst)) for var, lst in node.lists), 'true' if node.guard is None else gen(node.guard))
+    elif node_type == 'noop':
+        return ''
     else:  # a literal value
         return node
 
@@ -86,7 +91,7 @@ def gen(node, print_expr=False, el=False):
 
 def run(file_name):
     with open(file_name) as f:
-        code = f.read().replace('\n', '')
+        code = f.read()
     try:
         for block in parser.parse(code).code:
             exec(gen(block), namespace)

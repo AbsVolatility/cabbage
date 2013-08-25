@@ -19,12 +19,14 @@ def base(value, bse, alphabet=cbgString('0123456789abcdefghijklmnopqrstuvwxyz'))
     if value_type == 'string':
         value = value.out
         result = 0
+        is_positive = True
         if value.startswith(('+', '-')):
-            pos = value.pop(0) == '+'
+            is_positive = value[0] == '+'
+            value = value[1:]
         for digit in value:
             result *= bse
             result += chars.index(digit)
-        return cbgInteger(result)
+        return cbgInteger(result if is_positive else -result)
     else:
         value = value.value
         neg = value < 0
@@ -39,4 +41,7 @@ def base(value, bse, alphabet=cbgString('0123456789abcdefghijklmnopqrstuvwxyz'))
 def input_(prompt=cbgString('')):
     return cbgString(input(prompt.out))
 
-funcs = {'base': cbgFunction('base', base), 'input': cbgFunction('input', input_)}
+def type_(obj):
+    return cbgString(obj.type)
+
+funcs = {'base': cbgFunction('base', base), 'input': cbgFunction('input', input_), 'genus': cbgFunction('type', type_)}

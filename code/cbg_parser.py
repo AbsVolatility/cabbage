@@ -40,6 +40,7 @@ def p_stmt(p):
             | assign_stmt
             | augassign_stmt
             | raugassign_stmt
+            | index_assign
             | unary_augassign_stmt
             | expression_stmt
             | if_stmt
@@ -47,8 +48,9 @@ def p_stmt(p):
             | for_loop
             | while_loop
             | return_stmt
-            | break_stmt'''
-    p[0] = p[1]
+            | break_stmt
+            | empty'''
+    p[0] = p[1] or NoOp()
 
 def p_print(p):
     '''print_stmt : PRINT
@@ -66,6 +68,10 @@ def p_augassign(p):
 def p_raugassign(p):
     'raugassign_stmt : expression RAUGASSIGN ID'
     p[0] = Assign(p[3], BinaryOp(p[2][:-1], p[1], Id(p[3])))
+
+def p_index_assign(p):
+    'index_assign : expr_slice ASSIGN expression'
+    p[0] = IdxAssign(p[1].lst, p[1].index, p[3])
 
 def p_unary_augassign(p):
     "unary_augassign_stmt : unary_id '<'"
@@ -164,8 +170,12 @@ def p_expression_ternary(p):
     "expression : expression '?' expression ':' expression %prec TERNARY"
     p[0] = Ternary(p[1], p[3], p[5])
 
+def p_expression_slce(p):
+    'expression : expr_slice'
+    p[0] = p[1]
+
 def p_expression_slice(p):
-    '''expression : expression '[' expression ']' %prec SLICE
+    '''expr_slice : expression '[' expression ']' %prec SLICE
                   | expression '[' slice ']' %prec SLICE'''
     p[0] = Slice(p[1], p[3])
 
@@ -194,10 +204,6 @@ def p_func_call_lit(p):
 def p_expression_literal(p):
     'expression : literal'
     p[0] = p[1]
-
-def p_expression_id(p):
-    'expression : ID'
-    p[0] = Id(p[1])
 
 def p_expression_list(p):
     '''expression_list : empty

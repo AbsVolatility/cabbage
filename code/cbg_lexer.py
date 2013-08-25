@@ -69,6 +69,6 @@ def t_newline(t):
 t_ignore = ' '
 
 def t_error(t):
-    raise SyntaxError("illegal character '{}'".format(t.value[0]))
+    raise SyntaxError("illegal character '{}' at char {}".format(t.value[0], t.lexpos))
 
 lexer = lex.lex()

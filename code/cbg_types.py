@@ -1,22 +1,20 @@
-class cbgType:
-    def unary(fn):
-        def err(self):
-            raise TypeError("unary operator '{}' not defined for type '{}'".format(fn(self), self.type))
-        return err
-    def binary(fn):
-        def err(self, other):
-            raise TypeError("binary operator '{}' not defined for types '{}' and '{}'".format(fn(self, other), self.type, other.type))
-        return err
+def unary(fn):
+    def err(self):
+        raise TypeError("unary operator '{}' not defined for type '{}'".format(fn(self), self.type))
+    return err
+def binary(fn):
+    def err(self, other):
+        raise TypeError("binary operator '{}' not defined for types '{}' and '{}'".format(fn(self, other), self.type, other.type))
+    return err
 
-    def print(self, repr=False):
-        print(self.repr if repr and hasattr(self, 'repr') else self.out)
+class cbgType:
+    def display(self, rout=False):
+        print(self.rout if rout and hasattr(self, 'rout') else self.out)
 
     def uplus(self):
         return self
     def blnot(self):
         return cbgbool(not self.value)
-    def rpr(self):
-        return cbgString(self.repr)
     def eq(self, other):
         return cbgbool(self.value == other.value)
     def ne(self, other):
@@ -131,7 +129,7 @@ class cbgSequence(cbgType):
         if other.type == 'integer':
             if other.value >= 1:
                 val = self
-                for i in range(other.value-1):
+                for _ in range(other.value-1):
                     val = val.mul(self)
                 return val
             else:
@@ -141,7 +139,7 @@ class cbgSequence(cbgType):
     def slce(self, index):
         if index.type == 'integer':
             return self.value[index.value]
-        if index.type == 'list':
+        elif index.type == 'list':
             if not all(i.type in ('integer', 'none') for i in index.value):
                 raise TypeError("slice values must be integers or 'none'")
             return self.__class__(self.value[slice(*[i.value for i in index.value])])
@@ -257,7 +255,7 @@ class cbgString(cbgSequence):
     def __init__(self, value):
         self.value = value.out if hasattr(value, 'type') else value
         self.out = self.value
-        self.repr = repr(self.out)
+        self.rout = repr(self.out)
     def __repr__(self):
         return 'str({!r})'.format(self.out)
 
@@ -296,6 +294,15 @@ class cbgList(cbgSequence):
         return '[' + ', '.join([i.out for i in self.value]) + ']'
     def __repr__(self):
         return 'list({!r})'.format(self.value)
+    def setslce(self, index, value):
+        if index.type == 'integer':
+            self.value[index.value] = value
+        elif index.type == 'list':
+            if not all(i.type in ('integer', 'none') for i in index.value):
+                raise TypeError("slice values must be integers or 'none'")
+            self.value[slice(*[i.value for i in index.value])] = value.value
+        else:
+            raise TypeError("invalid index type '{}'".format(index.type))
 
     def fold(self, op):
         val = self.value[0]
@@ -388,7 +395,7 @@ class cbgNone(cbgType):
 
 true, false = cbgBool(True), cbgBool(False)
 def cbgbool(val):
-    return (false, true)[bool(val.value)]
+    return (false, true)[val]
 
 none = cbgNone()
 
