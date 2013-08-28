@@ -86,52 +86,42 @@ class Lexer:
         if not c:
             return None
         pos, lineno = self.pointer, self.lineno
-        if c in 'abcdefgijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_':
-            token = c + self.zeroormore('abcdefgijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
+        if c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_':
+            token = c + self.zeroormore('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
             name = self.reserved.get(token, 'ID')
             if name != 'ID':
                 token = {'true': True, 'false': False, 'none': None}.get(token, token)
             return Token(token, name, pos, lineno)
         elif c in '0123456789':
             token = c + self.zeroormore('0123456789')
-            c = self.next()
-            if c == '.':
-                token += c
+            if self.next() == '.':
+                token += '.'
                 c = self.next()
-                if not c or c not in '0123456789':
+                if not (c and c in '0123456789'):
                     self.push()
                     token = token[:-1]
                 else:
-                    token += c
-                    token += self.zeroormore('0123456789')
+                    token += c + self.zeroormore('0123456789')
                     return Token(float(token), 'FLOAT', pos, lineno)
             self.push()
             return Token(int(token), 'INTEGER', pos, lineno)
         elif c == "'":
-            token = c
+            token = ''
             while True:
                 c = self.next()
                 if not c:
                     raise SyntaxError('unexpected EOL while parsing')
                 if c == "'":
-                    return Token(token[1:], 'STRING', pos, lineno)
+                    return Token(token, 'STRING', pos, lineno)
                 token += c
         elif c == '&':
-            token = c
-            c = self.next()
-            if c == '&':
-                token += c
-                return Token(token, 'BOOLEAN', pos, lineno)
+            if self.next() == '&':
+                return Token('&&', 'BOOLEAN', pos, lineno)
             raise SyntaxError("illegal character {!r} at position {}".format(c, self.pointer))
         elif c == '\\':
-            token = c
-            c = self.next()
-            if c == '@':
-                token += c
-                c = self.next()
-                if c == '/':
-                    token += c
-                    return Token(token, 'PRINT', pos, lineno)
+            if self.next() == '@':
+                if self.next() == '/':
+                    return Token('\\@/', 'PRINT', pos, lineno)
                 raise SyntaxError("illegal character {!r} at position {}".format(c, self.pointer))
             raise SyntaxError("illegal character {!r} at position {}".format(c, self.pointer))
         elif c == '.':
@@ -152,7 +142,7 @@ class Lexer:
             match = self.options({'-': 'ASSIGN', '=': 'COMPARISON'}, c, pos, lineno)
             if match:
                 return Token(*match)
-            return Token(c, 'COMPARISON', pos, lineno)
+            return Token('<', 'COMPARISON', pos, lineno)
         elif c in '*/^%':
             match = self.options({'<': 'AUGASSIGN', '>': 'RAUGASSIGN'}, c, pos, lineno)
             if match:
@@ -162,27 +152,27 @@ class Lexer:
             match = self.options({'<': 'AUGASSIGN', '>': 'RAUGASSIGN', '@': 'FUNCDEF'}, c, pos, lineno)
             if match:
                 return Token(*match)
-            return Token(c, '+', pos, lineno)
+            return Token('+', '+', pos, lineno)
         elif c == '-':
             match = self.options({'<': 'AUGASSIGN', '>': 'RAUGASSIGN', ':': 'SWITCH'}, c, pos, lineno)
             if match:
                 return Token(*match)
-            return Token(c, '-', pos, lineno)
+            return Token('-', '-', pos, lineno)
         elif c == '!':
-            match = self.options({'=': 'COMPARISON'}, c, pos, lineno)
-            if match:
-                return Token(*match)
-            return Token(c, 'UNARY', pos, lineno)
+            if self.next() == '=':
+                return Token('!=', 'COMPARISON', pos, lineno)
+            self.push()
+            return Token('!', 'UNARY', pos, lineno)
         elif c == '>':
-            match = self.options({'=': 'COMPARISON'}, c, pos, lineno)
-            if match:
-                return Token(*match)
-            return Token(c, 'COMPARISON', pos, lineno)
+            if self.next() == '=':
+                return Token('>=', 'COMPARISON', pos, lineno)
+            self.push()
+            return Token('>', 'COMPARISON', pos, lineno)
         elif c == '|':
-            match = self.options({'|': 'BOOLEAN'}, c, pos, lineno)
-            if match:
-                return Token(*match)
-            return Token(c, '|', pos, lineno)
+            if self.next() == '|':
+                return Token('||', 'BOOLEAN', pos, lineno)
+            self.push()
+            return Token('|', '|', pos, lineno)
         elif c == '`':
             return Token(c, 'UNARY', pos, lineno)
         elif c == '=':
