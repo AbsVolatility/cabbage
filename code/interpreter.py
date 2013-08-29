@@ -18,7 +18,7 @@ while True:
     if not s:
         continue
     try:
-        parsed = parser.parse(s)
+        parsed = parser.parse(s, lexer=lexer)
         if debug:
             print('parse tree:', parsed)
             print()

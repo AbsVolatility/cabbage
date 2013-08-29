@@ -93,7 +93,7 @@ def run(file_name):
     with open(file_name) as f:
         code = f.read()
     try:
-        for block in parser.parse(code).code:
+        for block in parser.parse(code, lexer=lexer).code:
             exec(gen(block), namespace)
     except Exception as e:
         print('{}: {}'.format(type(e).__name__, str(e)))
