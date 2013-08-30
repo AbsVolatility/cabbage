@@ -5,4 +5,4 @@
         seq +< [i]; };
     ~ seq; };
 
-\@/ collatz(17);
+@>(collatz(17));

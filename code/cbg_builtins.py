@@ -1,3 +1,4 @@
+from __future__ import print_function
 from cbg_types import *
 
 import sys
@@ -41,7 +42,12 @@ def base(value, bse, alphabet=cbgString('0123456789abcdefghijklmnopqrstuvwxyz'))
 def input_(prompt=cbgString('')):
     return cbgString(input(prompt.out))
 
+def print_(out=cbgString('')):
+    out.display()
+    return none
+
 def type_(obj):
     return cbgString(obj.type)
 
-funcs = {'base': cbgFunction('base', base), 'input': cbgFunction('input', input_), 'genus': cbgFunction('type', type_)}
+funcs = {'base': cbgFunction('base', base), 'input': cbgFunction('input', input_),
+         'print': cbgFunction('print', print_), 'type': cbgFunction('type', type_)}

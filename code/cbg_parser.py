@@ -36,8 +36,7 @@ def p_stmt_(p):
     p[0] = p[1]
 
 def p_stmt(p):
-    '''stmt : print_stmt
-            | assign_stmt
+    '''stmt : assign_stmt
             | augassign_stmt
             | raugassign_stmt
             | index_assign
@@ -51,11 +50,6 @@ def p_stmt(p):
             | break_stmt
             | empty'''
     p[0] = p[1] or NoOp()
-
-def p_print(p):
-    '''print_stmt : PRINT
-                  | PRINT expression'''
-    p[0] = Print(p[2] if len(p)==3 else cbgString(''))
 
 def p_assign(p):
     'assign_stmt : ID ASSIGN expression'
@@ -204,6 +198,14 @@ def p_func_call_lit(p):
 def p_expression_literal(p):
     'expression : literal'
     p[0] = p[1]
+
+def p_expression_id(p):
+    'expression : ID'
+    p[0] = Id(p[1])
+
+def p_expression_special_id(p):
+    'expression : SPECIAL_ID'
+    p[0] = Id({'@<': 'input', '@>': 'print'}[p[1]], special=True)
 
 def p_expression_list(p):
     '''expression_list : empty

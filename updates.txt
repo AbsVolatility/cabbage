@@ -1,3 +1,9 @@
+v0.3.0
+------
+ - Introduced "special" functions
+  - prefixed with `@`
+ - Changed print function to `@>`
+
 v0.2.4
 ------
  - Added switch/case

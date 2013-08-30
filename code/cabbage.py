@@ -35,8 +35,6 @@ def gen(node, print_expr=False, el=False):
             return '{} = {}'.format(name, gen(node.value))
     if node_type == 'idxassign':
         return '{}.setslce({}, {})'.format(gen(node.lst), gen(node.slce), gen(node.value))
-    elif node_type == 'print':
-        return '{}.display()'.format(gen(node.value))
     elif node_type == 'id':
         return node.name
     elif node_type == 'expression':

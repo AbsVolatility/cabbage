@@ -1,17 +1,10 @@
 class Node:
     pass
 
-class Print(Node):
-    type = 'print'
-    def __init__(self, value):
-        self.value = value
-    def __repr__(self):
-        return 'Print({!r})'.format(self.value)
-
 class Assign(Node):
     type = 'assign'
     def __init__(self, name, value):
-        self.name = name
+        self.name = 'cbg_' + name
         self.value = value
     def __repr__(self):
         return 'Assign({}, {!r})'.format(self.name, self.value)
@@ -27,8 +20,8 @@ class IdxAssign(Node):
 
 class Id(Node):
     type = 'id'
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, name, special=False):
+        self.name = ('cbg_' if not special else '') + name
     def __repr__(self):
         return 'Id({!r})'.format(self.name)
 

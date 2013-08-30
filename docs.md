@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.2.4
+# Documentation for Cabbage v0.3.0
 
 Warning: this document is by no means complete.
 
@@ -53,7 +53,7 @@ Each statment must end in a semicolon (`;`).
 
     <id> <op>< <value>;
 
-`<op> should be replaced by one of these operators:
+`<op>` should be replaced by one of these operators:
 
     +, -, *, /, ^, %, .&, .|, .^
 
@@ -68,10 +68,6 @@ There is also support for a sort of "unary augmented assignment":
     <op(s)><id> <;
 
 Where `<op(s)>` should be replaced by one or more unary operators. For example, `-a<;` is equivalent to `a <- -a;`
-
-### The print statement:
-
-    \@/ <value>;
 
 ## Operators
 
@@ -132,13 +128,18 @@ The `<param_list>` is a list of values separated by commas (`,`).
 
 ### Builtins
 
-There are currently three builtin functions in Cabbage - `base`, `input` and `type`
+There are currently two builtin functions in Cabbage - `base` and `type`
 
 `base` can either take a string and convert it from a given base to an integer, or take an integer and convert it to a given base to a string. A custom alphabet can be supplied if you don't want to use the default (the digits 0 - 9 plus all lower-cased letter in order).
 
-`input` simply takes input from standard in, with a given prompt, or the default empty string.
-
 `type` determines the type of an object.
+
+### Special Functions
+
+Special functions are prefixed with the `@` character.
+
+ - `@<` takes one line of input from stdin
+ - `@>` prints an object to stdout
 
 ## Loops and Conditionals
 

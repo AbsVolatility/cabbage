@@ -390,6 +390,9 @@ class cbgNone(cbgType):
     def __init__(self):
         self.value = None
         self.out = 'none'
+    def display(self, rout=False):
+        if not rout:
+            print('none')
     def __repr__(self):
         return 'none'
 
