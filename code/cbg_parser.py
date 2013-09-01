@@ -27,9 +27,9 @@ def p_s(p):
     p[0] = Block(p[1])
 
 def p_stmt_list(p):
-    '''stmt_list : empty
+    '''stmt_list : stmt_
                  | stmt_ stmt_list'''
-    p[0] = ([p[1]] + p[2]) if len(p)==3 else []
+    p[0] = [p[1]] + (p[2] if len(p)==3 else [])
 
 def p_stmt_(p):
     "stmt_ : stmt ';'"
@@ -189,7 +189,7 @@ def p_expression_parens(p):
 
 def p_func_call(p):
     "expression : TYPE '(' expression_list ')'"
-    p[0] = FunctionCall(Id(p[1]), ParamList(p[3]))
+    p[0] = FunctionCall(Id(p[1], special=True), ParamList(p[3]))
 
 def p_func_call_lit(p):
     "expression : expression '(' expression_list ')' %prec FUNCCALL"
@@ -249,18 +249,12 @@ def p_literal_none(p):
 
 def p_literal_other(p):
     '''literal : list
-               | tuple
                | set'''
     p[0] = p[1]
 
 def p_list(p):
     "list : '[' expression_list ']'"
     p[0] = cbgList(p[2])
-
-def p_tuple(p):
-    """tuple : '(' empty ')'
-             | '(' expression ',' expression_list ')'"""
-    p[0] = cbgTuple([p[2]]+p[4] if len(p)==6 else ())
 
 def p_set(p):
     "set : '{' expression_list '}'"

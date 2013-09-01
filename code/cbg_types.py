@@ -117,34 +117,15 @@ class cbgSequence(cbgType):
     def abs(self):
         return cbgInteger(len(self.value))
     def add(self, other):
-        return self.__class__(self.value + self.__class__(other).value)
+        if self.type == other.type:
+            return self.__class__(self.value + other.value)
+        else:
+            super().add(other)
     def mul(self, other):
         if other.type == 'integer':
             return self.__class__(self.value * other.value)
-        elif other.type in ('string', 'list', 'tuple'):
-            return cbgList([cbgTuple(i.add(j)) if i.type=='tuple' else cbgTuple((i, j)) for i in self.value for j in other.value])
         else:
             super().mul(other)
-    def pow(self, other):
-        if other.type == 'integer':
-            if other.value >= 1:
-                val = self
-                for _ in range(other.value-1):
-                    val = val.mul(self)
-                return val
-            else:
-                raise ValueError('power of a sequence must be a positive integer')
-        else:
-            super().pow(other)
-    def slce(self, index):
-        if index.type == 'integer':
-            return self.value[index.value]
-        elif index.type == 'list':
-            if not all(i.type in ('integer', 'none') for i in index.value):
-                raise TypeError("slice values must be integers or 'none'")
-            return self.__class__(self.value[slice(*[i.value for i in index.value])])
-        else:
-            raise TypeError("invalid index type '{}'".format(index.type))
 
 class cbgInteger(cbgNumber):
     type = 'integer'
@@ -156,7 +137,7 @@ class cbgInteger(cbgNumber):
     def add(self, other):
         if other.type in ('integer', 'float'):
             return other.__class__(self.value + other.value)
-        elif other.type in ('string', 'list', 'tuple'):
+        elif other.type in ('string', 'list'):
             return other.__class__(self).add(other)
         else:
             super().add(self, other)
@@ -174,7 +155,7 @@ class cbgInteger(cbgNumber):
         if other.type == 'integer' and self.mod(other).value == 0:
             return cbgInteger(self.value // other.value)
         elif other.type in ('integer', 'float'):
-            return cbgFloat(self.value / other.value)
+            return cbgFloat(self.value * 1.0 / other.value)
         else:
             super().div(self, other)
     def pow(self, other):
@@ -220,7 +201,7 @@ class cbgFloat(cbgNumber):
     def add(self, other):
         if other.type in ('integer', 'float'):
             return cbgFloat(self.value + other.value)
-        elif other.type in ('string', 'list', 'tuple'):
+        elif other.type in ('string', 'list'):
             return other.__class__(self).add(other)
         else:
             super().add(self, other)
@@ -259,17 +240,6 @@ class cbgString(cbgSequence):
     def __repr__(self):
         return 'str({!r})'.format(self.out)
 
-    def add(self, other):
-        if other.type == 'string':
-            return cbgString(self.value + other.value)
-        if other.type in ('integer', 'float'):
-            return cbgString(self.value + other.out)
-        else:
-            super().add(self, other)
-    def mul(self, other):
-        cbgType.mul(self, other)
-    def pow(self, other):
-        cbgType.pow(self, other)
     def slce(self, index):
         if index.type == 'integer':
             return cbgString(self.value[index.value])
@@ -283,17 +253,22 @@ class cbgString(cbgSequence):
 class cbgList(cbgSequence):
     type = 'list'
     def __init__(self, value):
-        if hasattr(value, 'type') and value.type not in ('string', 'list', 'tuple'):
-            self.value = [value]
-        elif hasattr(value, 'value'):
-            self.value = list(value.value)
-        else:
-            self.value = list(value)
+        self.value = list(getattr(value, 'value', value))
     @property
     def out(self):
-        return '[' + ', '.join([i.out for i in self.value]) + ']'
+        return '[' + ', '.join([getattr(i, 'rout', i.out) for i in self.value]) + ']'
     def __repr__(self):
         return 'list({!r})'.format(self.value)
+
+    def slce(self, index):
+        if index.type == 'integer':
+            return self.value[index.value]
+        elif index.type == 'list':
+            if not all(i.type in ('integer', 'none') for i in index.value):
+                raise TypeError("slice values must be integers or 'none'")
+            return self.__class__(self.value[slice(*[i.value for i in index.value])])
+        else:
+            raise TypeError("invalid index type '{}'".format(index.type))
     def setslce(self, index, value):
         if index.type == 'integer':
             self.value[index.value] = value
@@ -310,39 +285,13 @@ class cbgList(cbgSequence):
             val = getattr(val, op)(i)
         return val
 
-class cbgTuple(cbgSequence):
-    type = 'tuple'
-    def __init__(self, value):
-        if hasattr(value, 'type') and value.type not in ('string', 'list', 'tuple'):
-            self.value = (value,)
-        elif hasattr(value, 'value'):
-            self.value = tuple(value.value)
-        else:
-            self.value = tuple(value)
-    @property
-    def out(self):
-        return '(' + ', '.join([i.out for i in self.value]) + ')'
-    def __repr__(self):
-        return 'tuple({!r})'.format(self.value)
-
-    def fold(self, op):
-        val = self.value[0]
-        for i in self.value[1:]:
-            val = getattr(val, op)(i)
-        return val
-
 class cbgSet(cbgType):
     type = 'set'
     def __init__(self, value):
-        if hasattr(value, 'type') and value.type not in ('list', 'set'):
-            self.value = {value}
-        elif hasattr(value, 'value'):
-            self.value = set(value.value)
-        else:
-            self.value = set(value)
+        self.value = set(getattr(value, 'value', value))
     @property
     def out(self):
-        return '{' + ', '.join([i.out for i in sorted(self.value, key=lambda i:i.value)]) + '}'
+        return '{' + ', '.join([getattr(i, 'rout', i.out) for i in sorted(self.value, key=lambda i:i.value)]) + '}'
     def __repr__(self):
         return 'set({!r})'.format(self.value)
 
@@ -353,9 +302,8 @@ class cbgFunction(cbgType):
     type = 'function'
     def __init__(self, name, value):
         if not callable(value):
-            self.value = lambda: value
-        else:
-            self.value = value.value if hasattr(value, 'type') else value
+            raise TypeError("can't convert type '{}' into a function".format(value.type))
+        self.value = value.value if hasattr(value, 'type') else value
         self.name = name
         self.out = "function '{}'".format(name)
     def __repr__(self):
@@ -403,7 +351,7 @@ def cbgbool(val):
 none = cbgNone()
 
 types = {'int': cbgInteger, 'float': cbgFloat,
-         'str': cbgString, 'list': cbgList, 'tuple': cbgTuple, 'set': cbgSet,
+         'str': cbgString, 'list': cbgList, 'set': cbgSet,
          'func': cbgFunction,
          'bool': cbgbool, 'true': true, 'false': false,
          'none': none}

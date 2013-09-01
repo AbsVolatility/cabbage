@@ -46,7 +46,7 @@ def gen(node, print_expr=False, el=False):
     elif node_type == 'unary_op':
         return '{}({})'.format(node.op, gen(node.arg)) if node.isfunc else '{}.{}()'.format(gen(node.arg), node.op)
     elif node_type == 'lambdadef':
-        return "func('lambda', lambda {}: {})".format(', '.join(node.var_lst), gen(node.code))
+        return "func('lambda', lambda {}: {})".format(', '.join(['cbg_' + i for i in node.var_lst]), gen(node.code))
     elif node_type == 'functiondef':
         return indent(['def {}({}):'.format(node.name, ', '.join(node.var_lst)), gen(node.code) + ['return none'], "{0} = func('{0}', {0})".format(node.name)])
     elif node_type == 'functioncall':

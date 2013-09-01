@@ -3,6 +3,9 @@ v0.3.0
  - Introduced "special" functions
   - prefixed with `@`
  - Changed print function to `@>`
+ - Removed automatic type conversion
+ - Removed tuple type
+ - (Temporarily) removed the cartesian product operator
 
 v0.2.4
 ------
