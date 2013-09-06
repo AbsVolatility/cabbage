@@ -108,8 +108,8 @@ def p_for_loop(p):
     p[0] = For(p[2], p[4], Block(p[6]))
 
 def p_while_loop(p):
-    "while_loop : '@' expression '{' stmt_list '}'"
-    p[0] = While(p[2], Block(p[4]))
+    "while_loop : '@' ':' expression '{' stmt_list '}'"
+    p[0] = While(p[3], Block(p[5]))
 
 def p_return_stmt(p):
     "return_stmt : '~' expression"
@@ -214,18 +214,19 @@ def p_expression_list(p):
     p[0] = ([p[1]] + p[3]) if len(p)==4 else ([p[1]] if p[1] else [])
 
 def p_lambda_def(p):
-    "literal : '{' id_list ':' expression '}'"
-    p[0] = LambdaDef(p[2], p[4])
+    """literal : '{' id_list ':' expression '}'
+               | '{' empty ':' expression '}'"""
+    p[0] = LambdaDef(p[2] or [], p[4])
 
 def p_func_def(p):
-    "stmt : FUNCDEF ID ':' id_list '{' stmt_list '}'"
-    p[0] = FunctionDef(p[2], p[4], Block(p[6]))
+    """stmt : FUNCDEF ID ':' id_list '{' stmt_list '}'
+            | FUNCDEF ID ':' empty '{' stmt_list '}'"""
+    p[0] = FunctionDef(p[2], p[4] or [], Block(p[6]))
 
 def p_id_list(p):
-    '''id_list : empty
-               | ID
-               | ID ',' id_list'''
-    p[0] = ([p[1]] + p[3]) if len(p)==4 else ([p[1]] if p[1] else [])
+    '''id_list : ID
+               | ID id_list'''
+    p[0] = [p[1]] + (p[2] if len(p)==4 else [])
 
 def p_literal_integer(p):
     'literal : INTEGER'
@@ -236,7 +237,8 @@ def p_literal_float(p):
     p[0] = cbgFloat(p[1])
 
 def p_literal_string(p):
-    'literal : STRING'
+    '''literal : STRING
+               | RAWSTRING'''
     p[0] = cbgString(p[1])
 
 def p_literal_bool(p):

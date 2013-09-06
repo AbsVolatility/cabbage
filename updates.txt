@@ -1,7 +1,13 @@
+v0.3.1
+------
+ - Function parameters are now space separated
+ - Added evaluated strings, as opposed to raw strings
+  - Uses `"` rather than `'`
+
 v0.3.0
 ------
  - Introduced "special" functions
-  - prefixed with `@`
+  - Prefixed with `@`
  - Changed print function to `@>`
  - Removed automatic type conversion
  - Removed tuple type

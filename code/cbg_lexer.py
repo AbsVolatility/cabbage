@@ -23,6 +23,8 @@
 # - literals       +-*/^%.|,()[]:{}?@~#;
 #-------------------------------------------------------------------------------
 
+import ast
+
 # `tokens` is required for use with the PLY parser module
 tokens = ['ASSIGN', 'AUGASSIGN', 'RAUGASSIGN',
           'FUNCDEF',
@@ -32,7 +34,7 @@ tokens = ['ASSIGN', 'AUGASSIGN', 'RAUGASSIGN',
           'RANGE',
           'COMPARISON',
           'ID', 'SPECIAL_ID',
-          'FLOAT', 'INTEGER', 'STRING'] + ['BOOL', 'NONE', 'TYPE']
+          'FLOAT', 'INTEGER', 'RAWSTRING', 'STRING'] + ['BOOL', 'NONE', 'TYPE']
 
 class Token:
     def __init__(self, value, name, pos, lineno):
@@ -120,7 +122,20 @@ class Lexer:
                 if not c:
                     raise SyntaxError('unexpected EOL while parsing')
                 if c == "'":
-                    return Token(token, 'STRING', pos, lineno)
+                    return Token(token, 'RAWSTRING', pos, lineno)
+                token += c
+        elif c == '"':
+            token = '"'
+            while True:
+                c = self.next()
+                if not c:
+                    raise SyntaxError('unexpected EOL while parsing')
+                if c == '"':
+                    if token[-1] == '\\':
+                        pass
+                    else:
+                        token += '"'
+                        return Token(ast.literal_eval(token), 'STRING', pos, lineno)
                 token += c
         elif c == '&':
             if self.next() == '&':

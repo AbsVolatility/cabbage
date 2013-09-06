@@ -1,4 +1,4 @@
-# Documentation for Cabbage v0.3.0
+# Documentation for Cabbage v0.3.1
 
 Warning: this document is by no means complete.
 
@@ -14,7 +14,7 @@ Warning: this document is by no means complete.
 
 There are six types in Cabbage: integers, floats, strings, lists, booleans and functions.
 
-Strings must be enclosed with single quotes (`'`).
+Raw strings are enclosed with single quotes (`'`), where as evaluated strings are enclosed with double quotes (`"`).
 
 Lists are contained inside square brackets (`[]`) and elements are separated by commas. Lists (and strings) can be indexed\sliced with this syntax:
 
